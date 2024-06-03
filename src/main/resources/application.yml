@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: 'website-selling-technology_backend'
+  datasource:
+    url: 'jdbc:mysql://localhost:3306/website_selling_technology'
+    username: root
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
