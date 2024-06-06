@@ -1,19 +1,26 @@
 package vn.jully.website_selling_technology_backend.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Data
 @Table(name = "\"order\"")
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
-    private long orderId;
+    private long id;
 
     @Column(name = "first_name", length = 255)
     private String firstName;
@@ -24,7 +31,7 @@ public class Order {
     @Column(name = "email", length = 255)
     private String email;
 
-    @Column(name = "phone_number", length = 255)
+    @Column(name = "phone_number", length = 255, nullable = false)
     private String phoneNumber;
 
     @Column(name = "address", length = 512)
@@ -34,7 +41,7 @@ public class Order {
     private String note;
 
     @Column(name = "order_date")
-    private Date orderDate;
+    private LocalDateTime orderDate;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
@@ -52,10 +59,10 @@ public class Order {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    @JoinColumn(name = "shipping_method_id")
+    @JoinColumn(name = "shipping_method_id", nullable = false)
     private ShippingMethod shippingMethod;
 
-    @Column(name = "shipping_address", length = 255)
+    @Column(name = "shipping_address", length = 255, nullable = false)
     private String shippingAddress;
 
     @Column(name = "shipping_date")
@@ -68,7 +75,7 @@ public class Order {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
-    @JoinColumn(name = "payment_method_id")
+    @JoinColumn(name = "payment_method_id", nullable = false)
     private PaymentMethod paymentMethod;
 
     @Column(name = "is_active")

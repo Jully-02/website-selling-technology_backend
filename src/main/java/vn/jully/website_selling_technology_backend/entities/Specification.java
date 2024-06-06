@@ -1,16 +1,22 @@
 package vn.jully.website_selling_technology_backend.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @Table(name = "specification")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Specification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "specification_id")
-    private long specificationId;
+    private long id;
 
     @Column(name = "weight")
     private float weight;

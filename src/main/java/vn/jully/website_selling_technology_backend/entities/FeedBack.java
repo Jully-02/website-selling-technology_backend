@@ -1,16 +1,21 @@
 package vn.jully.website_selling_technology_backend.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
-@Data
 @Table(name = "feedback")
-public class FeedBack {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class FeedBack extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feedback_id")
-    private long feedbackId;
+    private long id;
 
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,

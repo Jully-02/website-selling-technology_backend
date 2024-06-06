@@ -1,19 +1,26 @@
 package vn.jully.website_selling_technology_backend.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Data
 @Table(name = "product")
-public class Product {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Data
+public class Product extends BaseEntity{
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     @Column(name= "product_id")
-    private long productId;
+    private long id;
 
     @Column(name = "title", length = 256)
     private String title;
@@ -27,14 +34,28 @@ public class Product {
     @Column(name = "description", columnDefinition = "text")
     private String description;
 
+    @Column(name = "discount")
+    private float discount;
+
     @Column(name = "average_rate")
     private float averageRate;
 
-    @Column(name = "created_at")
-    private Date createdAt;
-
-    @Column(name = "updated_at")
-    private Date updatedAt;
+//    @Column(name = "created_at")
+//    private LocalDateTime createdAt;
+//
+//    @Column(name = "updated_at")
+//    private LocalDateTime updatedAt;
+//
+//    @PrePersist
+//    protected void onCreate () {
+//        createdAt = LocalDateTime.now();
+//        updatedAt = LocalDateTime.now();
+//    }
+//
+//    @PreUpdate
+//    protected void onUpdate () {
+//        updatedAt = LocalDateTime.now();
+//    }
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "specification_id")

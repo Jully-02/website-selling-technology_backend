@@ -1,7 +1,10 @@
 package vn.jully.website_selling_technology_backend.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 import java.util.List;
@@ -9,11 +12,14 @@ import java.util.List;
 @Entity
 @Data
 @Table(name = "user")
-public class User {
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class User extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
-    private long userId;
+    private long id;
 
     @Column(name = "first_name", length = 255)
     private String firstName;
@@ -24,20 +30,20 @@ public class User {
     @Column(name = "phone_number", length = 255)
     private String phoneNumber;
 
-    @Column(name = "email", length = 255)
+    @Column(name = "email", length = 255, nullable = false)
     private String email;
 
     @Column(name = "address", length = 512)
     private String address;
 
-    @Column(name = "password", length = 512)
+    @Column(name = "password", length = 512, nullable = false)
     private String password;
 
-    @Column(name = "created_at")
-    private Date createdAt;
-
-    @Column(name = "updated_at")
-    private Date updatedAt;
+//    @Column(name = "created_at")
+//    private Date createdAt;
+//
+//    @Column(name = "updated_at")
+//    private Date updatedAt;
 
     @Column(name = "is_active")
     private boolean isActive;
@@ -88,4 +94,10 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private List<Role> roleList;
+
+    @OneToMany(mappedBy = "user",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+    )
+    private List<Token> tokenList;
 }
