@@ -27,5 +27,5 @@ public interface IProductService{
             ProductImageDTO productImageDTO
     ) throws DataNotFoundException, InvalidParamException;
 
-    ProductResponse convertToProductResponse (Product product);
+//    ProductResponse convertToProductResponse (Product product);
 }

@@ -1,10 +1,8 @@
 package vn.jully.website_selling_technology_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
@@ -15,7 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Data
+//@Data
+@Getter
+@Setter
 public class Product extends BaseEntity{
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
@@ -59,6 +59,7 @@ public class Product extends BaseEntity{
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "specification_id")
+    @JsonIgnore
     private Specification specification;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {
@@ -70,18 +71,21 @@ public class Product extends BaseEntity{
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
+    @JsonIgnore
     private List<Category> categoryList;
 
     @OneToMany(mappedBy = "product",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
     )
+    @JsonIgnore
     private List<FeedBack> feedBackList;
 
     @OneToMany(mappedBy = "product",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
     )
+    @JsonIgnore
     private List<ProductImage> productImageList;
 
     @OneToMany(mappedBy = "product",
@@ -91,12 +95,14 @@ public class Product extends BaseEntity{
                     CascadeType.DETACH, CascadeType.REFRESH
             }
     )
+    @JsonIgnore
     private List<OrderDetail> orderDetailList;
 
     @OneToMany(mappedBy = "product",
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
     )
+    @JsonIgnore
     private List<FavoriteProduct> favoriteProductList;
 
     @ManyToOne(cascade = {

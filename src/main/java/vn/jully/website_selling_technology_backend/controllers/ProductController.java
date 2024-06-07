@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.controllers;
 
+import com.github.javafaker.Faker;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
@@ -151,11 +152,48 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> getProductById(@PathVariable("id") Long productId) throws DataNotFoundException {
         Product product = productService.getProductById(productId);
-        return ResponseEntity.ok(productService.convertToProductResponse(product));
+        return ResponseEntity.ok(ProductResponse.convertToProductResponse(product));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable long id) {
-        return ResponseEntity.status(HttpStatus.OK).body("Product deleted successfully!");
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
+        try {
+            productService.deleteProduct(id);
+            return  ResponseEntity.ok("Deleted product successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+//    @PostMapping("/generateFakeProducts")
+    private ResponseEntity<String> generateFakeProducts () {
+        Faker faker = new Faker();
+        for (long i = 0; i < 1_000_000; i++) {
+            String title = faker.commerce().productName();
+            if (productService.existsByTitle(title)) {
+                continue;
+            }
+            List<Long> categoryIds = new ArrayList<>();
+            for (int j = 0; j < faker.number().numberBetween(1,5); j++) {
+                categoryIds.add((long) faker.number().numberBetween(1, 29));
+            }
+            ProductDTO productDTO = ProductDTO
+                    .builder()
+                    .title(title)
+                    .price(faker.number().numberBetween(10, 90_000_000))
+                    .description(faker.lorem().sentence())
+                    .discount(faker.number().numberBetween(0, 10))
+                    .averageRate(faker.number().numberBetween(0, 5))
+                    .brandId((long)faker.number().numberBetween(1,5))
+                    .categoryIds(categoryIds)
+                    .thumbnail("")
+                    .build();
+            try {
+                productService.insertProduct(productDTO);
+            } catch (Exception e) {
+                return ResponseEntity.badRequest().body(e.getMessage());
+            }
+        }
+        return ResponseEntity.ok("Fake Products insert successfully");
     }
 }

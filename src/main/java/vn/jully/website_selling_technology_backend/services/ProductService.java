@@ -64,53 +64,7 @@ public class ProductService implements IProductService{
 
     @Override
     public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
-        return productRepository.findAll(pageRequest).map(this::convertToProductResponse);
-    }
-
-    @Override
-    public ProductResponse convertToProductResponse(Product product) {
-        List<Long> categoryIds = product.getCategoryList().stream()
-                .map(Category::getId)
-                .toList();
-        ProductResponse productResponse = ProductResponse.builder()
-                .id(product.getId())
-                .title(product.getTitle())
-                .price(product.getPrice())
-                .discount(product.getDiscount())
-                .description(product.getDescription())
-                .thumbnail(product.getThumbnail())
-                .averageRate(product.getAverageRate())
-                .brandId(product.getBrand().getId())
-                .categoryIds(categoryIds)
-                .build();
-        productResponse.setCreatedAt(product.getCreatedAt());
-        productResponse.setUpdatedAt(product.getUpdatedAt());
-        return productResponse;
-    }
-
-    public Product convertToProduct(ProductResponse productResponse) throws DataNotFoundException {
-        List<Category> categoryList = productResponse.getCategoryIds().stream()
-                .map(categoryId -> {
-                    try {
-                        return categoryRepository.findById(categoryId)
-                                .orElseThrow(() -> new DataNotFoundException("Cannot find category ID = " + categoryId));
-                    } catch (DataNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .toList();
-        Brand existingBrand = brandRepository.findById(productResponse.getBrandId())
-                .orElseThrow(() -> new DataNotFoundException("Cannot find brand ID = " + productResponse.getBrandId()));
-        return Product.builder()
-                .id(productResponse.getId())
-                .title(productResponse.getTitle())
-                .price(productResponse.getPrice())
-                .description(productResponse.getDescription())
-                .thumbnail(productResponse.getThumbnail())
-                .averageRate(productResponse.getAverageRate())
-                .brand(existingBrand)
-                .categoryList(categoryList)
-                .build();
+        return productRepository.findAll(pageRequest).map(ProductResponse::convertToProductResponse);
     }
 
     @Override

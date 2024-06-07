@@ -1,13 +1,14 @@
 package vn.jully.website_selling_technology_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+//@Data
+@Getter
+@Setter
 @Table(name = "product_image")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,5 +32,6 @@ public class ProductImage {
             CascadeType.DETACH, CascadeType.REFRESH
     })
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore
     private Product product;
 }

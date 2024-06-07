@@ -1,13 +1,12 @@
 package vn.jully.website_selling_technology_backend.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Data
+//@Data
+@Getter
+@Setter
 @Table(name = "favorite_product")
 @NoArgsConstructor
 @AllArgsConstructor

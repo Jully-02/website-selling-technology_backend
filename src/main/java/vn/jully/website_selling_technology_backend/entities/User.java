@@ -1,16 +1,15 @@
 package vn.jully.website_selling_technology_backend.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Date;
 import java.util.List;
 
 @Entity
-@Data
+//@Data
+@Getter
+@Setter
 @Table(name = "user")
 @AllArgsConstructor
 @NoArgsConstructor

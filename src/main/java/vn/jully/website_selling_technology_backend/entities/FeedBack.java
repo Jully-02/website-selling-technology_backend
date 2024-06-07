@@ -1,16 +1,15 @@
 package vn.jully.website_selling_technology_backend.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "feedback")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class FeedBack extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

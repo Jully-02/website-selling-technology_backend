@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,13 +14,14 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ProductDTO {
     @NotBlank(message = "Title is required")
     @Size(min = 10, max = 500, message = "Title must be between 10 and 500 characters")
     private String title;
 
     @Min(value = 0, message = "Price must be greater than or equal to 0")
-    @Max(value = 10000000, message = "Price must be less than or equal to 10,000,000")
+    @Max(value = 90_000_000, message = "Price must be less than or equal to 90_000_000")
     private float price;
 
     private String description;

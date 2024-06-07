@@ -1,15 +1,15 @@
 package vn.jully.website_selling_technology_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
-@Data
+//@Data
+@Getter
+@Setter
 @Table(name = "brand")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,5 +30,6 @@ public class Brand {
                     CascadeType.DETACH, CascadeType.REFRESH
             }
     )
+    @JsonIgnore
     private List<Product> productList;
 }
