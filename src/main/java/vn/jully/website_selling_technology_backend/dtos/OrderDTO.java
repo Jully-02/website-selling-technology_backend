@@ -8,7 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import vn.jully.website_selling_technology_backend.entities.OrderStatus;
 
-import java.sql.Date;
+import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @Builder
@@ -46,9 +47,9 @@ public class OrderDTO {
     @Min(value = 0, message = "Total money must be >= 0")
     private float totalMoney;
 
-    @JsonProperty("delivery_cost")
+    @JsonProperty("shipping_cost")
     @Min(value = 0, message = "Delivery cost must be >= 0")
-    private float deliveryCost;
+    private float shippingCost;
 
     @JsonProperty("payment_cost")
     @Min(value = 0, message = "Payment cost must be >= 0")
@@ -57,6 +58,9 @@ public class OrderDTO {
     @JsonProperty("shipping_address")
     @NotBlank(message = "Shipping address is required")
     private String shippingAddress;
+
+    @JsonProperty("shipping_date")
+    private LocalDate shippingDate;
 
     @JsonProperty("payment_method_id")
     @NotNull(message = "Payment method ID is required")

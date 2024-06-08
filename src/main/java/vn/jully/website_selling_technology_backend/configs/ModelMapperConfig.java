@@ -1,4 +1,4 @@
-package vn.jully.website_selling_technology_backend.config;
+package vn.jully.website_selling_technology_backend.configs;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;

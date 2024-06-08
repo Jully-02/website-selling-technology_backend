@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Order {
+public class Order extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
@@ -40,7 +41,7 @@ public class Order {
     private String note;
 
     @Column(name = "order_date")
-    private LocalDateTime orderDate;
+    private java.util.Date orderDate;
 
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
@@ -48,10 +49,10 @@ public class Order {
     @Column(name = "total_money")
     private float totalMoney;
 
-    @Column(name = "deliveryCost")
-    private float deliveryCost;
+    @Column(name = "shipping_cost")
+    private float shippingCost;
 
-    @Column(name = "paymentCost")
+    @Column(name = "payment_cost")
     private float paymentCost;
 
     @ManyToOne(cascade = {
@@ -65,7 +66,7 @@ public class Order {
     private String shippingAddress;
 
     @Column(name = "shipping_date")
-    private Date shippingDate;
+    private LocalDate shippingDate;
 
     @Column(name = "tracking_number")
     private String trackingNumber;

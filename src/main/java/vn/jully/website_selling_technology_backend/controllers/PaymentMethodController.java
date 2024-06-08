@@ -6,21 +6,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import vn.jully.website_selling_technology_backend.dtos.OrderDTO;
+import vn.jully.website_selling_technology_backend.dtos.PaymentMethodDTO;
+import vn.jully.website_selling_technology_backend.entities.PaymentMethod;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
-import vn.jully.website_selling_technology_backend.responses.OrderResponse;
-import vn.jully.website_selling_technology_backend.services.IOrderService;
+import vn.jully.website_selling_technology_backend.services.IPaymentMethodService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.prefix}/orders")
+@RequestMapping("${api.prefix}/payment-methods")
 @RequiredArgsConstructor
-public class OrderController {
-    private final IOrderService orderService;
+public class PaymentMethodController {
+    private final IPaymentMethodService paymentMethodService;
     @PostMapping("")
-    public ResponseEntity<?> insertOrder (
-            @RequestBody @Valid OrderDTO orderDTO,
+    public ResponseEntity<?> insertPaymentMethod (
+            @Valid @RequestBody PaymentMethodDTO paymentMethodDTO,
             BindingResult result
     ) {
         try {
@@ -31,34 +31,31 @@ public class OrderController {
                         .toList();
                 return ResponseEntity.badRequest().body(errorMessages);
             }
-            OrderResponse orderResponse = orderService.insertOrder(orderDTO);
-            return ResponseEntity.ok(orderResponse);
+            PaymentMethod paymentMethod = paymentMethodService.insertPaymentMethod(paymentMethodDTO);
+            return ResponseEntity.ok(paymentMethod);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOrder (@PathVariable("id") Long id) throws DataNotFoundException {
-        return ResponseEntity.ok(orderService.getOrder(id));
+    public ResponseEntity<?> getPaymentMethod (
+            @PathVariable("id") Long id
+    ) throws DataNotFoundException {
+        PaymentMethod paymentMethod = paymentMethodService.getPaymentMethod(id);
+        return ResponseEntity.ok(paymentMethod);
     }
 
-    @GetMapping("/user/{user_id}")
-    public ResponseEntity<?> findByUserId (
-            @Valid @PathVariable("user_id") Long userId
-    ) {
-        try {
-            return ResponseEntity.ok(orderService.findByUserId(userId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @GetMapping("")
+    public ResponseEntity<List<PaymentMethod>> getAllPaymentMethod () {
+        return ResponseEntity.ok(paymentMethodService.getAllPaymentMethod());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder (
-        @Valid @PathVariable Long id,
-        @Valid @RequestBody OrderDTO orderDTO,
-        BindingResult result
+    public ResponseEntity<?> updatePaymentMethod (
+            @PathVariable("id") Long id,
+            @Valid @RequestBody PaymentMethodDTO paymentMethodDTO,
+            BindingResult result
     ) {
         try {
             if (result.hasErrors()) {
@@ -68,16 +65,15 @@ public class OrderController {
                         .toList();
                 return ResponseEntity.badRequest().body(errorMessages);
             }
-            return ResponseEntity.ok(orderService.updateOrder(id, orderDTO));
+            return ResponseEntity.ok(paymentMethodService.updatePaymentMethod(id, paymentMethodDTO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrder (@Valid @PathVariable Long id) throws DataNotFoundException {
-        // Delete soft => update field active
-        orderService.deleteOrder(id);
-        return ResponseEntity.ok("Deleted Order successfully!");
+    public ResponseEntity<?> deletePaymentMethod (@PathVariable("id") Long id) {
+        paymentMethodService.deletePaymentMethod(id);
+        return ResponseEntity.ok("Deleted Payment method successfully");
     }
 }

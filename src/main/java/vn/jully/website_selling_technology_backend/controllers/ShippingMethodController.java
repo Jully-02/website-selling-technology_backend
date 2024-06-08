@@ -6,21 +6,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-import vn.jully.website_selling_technology_backend.dtos.OrderDTO;
+import vn.jully.website_selling_technology_backend.dtos.ShippingMethodDTO;
+import vn.jully.website_selling_technology_backend.entities.ShippingMethod;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
-import vn.jully.website_selling_technology_backend.responses.OrderResponse;
-import vn.jully.website_selling_technology_backend.services.IOrderService;
+import vn.jully.website_selling_technology_backend.services.IShippingMethodService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("${api.prefix}/orders")
+@RequestMapping("${api.prefix}/shipping-methods")
 @RequiredArgsConstructor
-public class OrderController {
-    private final IOrderService orderService;
+public class ShippingMethodController {
+    private final IShippingMethodService shippingMethodService;
     @PostMapping("")
-    public ResponseEntity<?> insertOrder (
-            @RequestBody @Valid OrderDTO orderDTO,
+    public ResponseEntity<?> insertShippingMethod (
+            @Valid @RequestBody ShippingMethodDTO shippingMethodDTO,
             BindingResult result
     ) {
         try {
@@ -31,34 +31,27 @@ public class OrderController {
                         .toList();
                 return ResponseEntity.badRequest().body(errorMessages);
             }
-            OrderResponse orderResponse = orderService.insertOrder(orderDTO);
-            return ResponseEntity.ok(orderResponse);
+            return ResponseEntity.ok(shippingMethodService.insertShippingMethod(shippingMethodDTO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getOrder (@PathVariable("id") Long id) throws DataNotFoundException {
-        return ResponseEntity.ok(orderService.getOrder(id));
+    public ResponseEntity<?> getShippingMethod (@PathVariable("id") Long id) throws DataNotFoundException {
+        return ResponseEntity.ok(shippingMethodService.getShippingMethod(id));
     }
 
-    @GetMapping("/user/{user_id}")
-    public ResponseEntity<?> findByUserId (
-            @Valid @PathVariable("user_id") Long userId
-    ) {
-        try {
-            return ResponseEntity.ok(orderService.findByUserId(userId));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @GetMapping("")
+    public ResponseEntity<List<ShippingMethod>> getAllShippingMethod () {
+        return ResponseEntity.ok(shippingMethodService.getAllShippingMethod());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder (
-        @Valid @PathVariable Long id,
-        @Valid @RequestBody OrderDTO orderDTO,
-        BindingResult result
+    public ResponseEntity<?> updateShippingMethod (
+            @PathVariable("id") Long id,
+            @Valid @RequestBody ShippingMethodDTO shippingMethodDTO,
+            BindingResult result
     ) {
         try {
             if (result.hasErrors()) {
@@ -68,16 +61,15 @@ public class OrderController {
                         .toList();
                 return ResponseEntity.badRequest().body(errorMessages);
             }
-            return ResponseEntity.ok(orderService.updateOrder(id, orderDTO));
+            return ResponseEntity.ok(shippingMethodService.updateShippingMethod(id, shippingMethodDTO));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrder (@Valid @PathVariable Long id) throws DataNotFoundException {
-        // Delete soft => update field active
-        orderService.deleteOrder(id);
-        return ResponseEntity.ok("Deleted Order successfully!");
+    public ResponseEntity<?> deleteShippingMethod (@PathVariable("id") Long id) {
+        shippingMethodService.deleteShippingMethod(id);
+        return ResponseEntity.ok("Deleted Shipping method successfully");
     }
 }
