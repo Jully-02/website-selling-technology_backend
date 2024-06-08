@@ -2,19 +2,22 @@ package vn.jully.website_selling_technology_backend.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Date;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
-//@Data
 @Getter
 @Setter
 @Table(name = "user")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class User extends BaseEntity{
+public class User extends BaseEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -99,4 +102,40 @@ public class User extends BaseEntity{
             cascade = CascadeType.ALL
     )
     private List<Token> tokenList;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.roleList.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .toList();
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    // Simplified method to always return true, removed redundant comment
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    // Simplified method to always return true, removed redundant comment
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    // Simplified method to always return true, removed redundant comment
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    // Updated to return the value of isActive
+    @Override
+    public boolean isEnabled() {
+        return isActive;
+    }
 }

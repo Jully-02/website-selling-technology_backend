@@ -19,7 +19,7 @@ import java.util.List;
 public class OrderResponse extends BaseResponse{
     private Long id;
 
-    @JsonBackReference("first_name")
+    @JsonProperty("first_name")
     private String firstName;
 
     @JsonProperty("last_name")
