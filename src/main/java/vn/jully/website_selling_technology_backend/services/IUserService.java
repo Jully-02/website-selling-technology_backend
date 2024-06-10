@@ -7,5 +7,5 @@ import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundExcept
 public interface IUserService {
     User insertUser (UserDTO userDTO);
 
-    String login (String email, String password);
+    String login (String email, String password) throws Exception;
 }

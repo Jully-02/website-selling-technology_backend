@@ -9,6 +9,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import vn.jully.website_selling_technology_backend.dtos.UserDTO;
 import vn.jully.website_selling_technology_backend.dtos.UserLoginDTO;
+import vn.jully.website_selling_technology_backend.entities.User;
+import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
 import vn.jully.website_selling_technology_backend.services.IUserService;
 
 import java.util.List;
@@ -34,8 +36,9 @@ public class UserController {
             if (!userDTO.getPassword().equals(userDTO.getRetypePassword())) {
                 return ResponseEntity.badRequest().body("Password does not match");
             }
-            userService.insertUser(userDTO);
-            return ResponseEntity.ok("Register successfully");
+            User user = userService.insertUser(userDTO);
+//            return ResponseEntity.ok("Register successfully");
+            return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -44,8 +47,12 @@ public class UserController {
     @PostMapping("login")
     public ResponseEntity<?> login (
        @Valid @RequestBody UserLoginDTO userLoginDTO
-    ) {
-        String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
-        return ResponseEntity.ok("some token");
+    ) throws Exception{
+        try {
+            String token = userService.login(userLoginDTO.getEmail(), userLoginDTO.getPassword());
+            return ResponseEntity.ok(token);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }
