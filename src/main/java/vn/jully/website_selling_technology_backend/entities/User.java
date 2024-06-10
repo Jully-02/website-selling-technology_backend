@@ -86,7 +86,7 @@ public class User extends BaseEntity implements UserDetails {
     )
     private List<Order> orderList;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
