@@ -12,6 +12,7 @@ import vn.jully.website_selling_technology_backend.dtos.UserDTO;
 import vn.jully.website_selling_technology_backend.entities.Role;
 import vn.jully.website_selling_technology_backend.entities.User;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
+import vn.jully.website_selling_technology_backend.exceptions.PermissionDenyException;
 import vn.jully.website_selling_technology_backend.repositories.RoleRepository;
 import vn.jully.website_selling_technology_backend.repositories.UserRepository;
 
@@ -27,7 +28,7 @@ public class UserService implements IUserService{
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     @Override
-    public User insertUser(UserDTO userDTO){
+    public User insertUser(UserDTO userDTO) throws Exception{
         String email = userDTO.getEmail();
         // Check if email exists or not?
         if (userRepository.existsByEmail(email)) {
@@ -37,9 +38,13 @@ public class UserService implements IUserService{
         List<Role> roles = userDTO.getRoleIds().stream()
                 .map(roleId -> {
                     try {
-                        return roleRepository.findById(roleId)
+                        Role role = roleRepository.findById(roleId)
                                 .orElseThrow(() -> new DataNotFoundException("Role ID: " + roleId + " not found"));
-                    } catch (DataNotFoundException e) {
+                        if (role.getName().equalsIgnoreCase("ADMIN")) {
+                            throw new PermissionDenyException("You cannot register a admin account");
+                        }
+                        return role;
+                    } catch (DataNotFoundException | PermissionDenyException e) {
                         throw new RuntimeException(e);
                     }
                 })

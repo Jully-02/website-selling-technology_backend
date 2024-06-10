@@ -3,6 +3,7 @@ package vn.jully.website_selling_technology_backend.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.List;
 public class OrderController {
     private final IOrderService orderService;
     @PostMapping("")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> insertOrder (
             @RequestBody @Valid OrderDTO orderDTO,
             BindingResult result
@@ -39,11 +41,13 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getOrder (@PathVariable("id") Long id) throws DataNotFoundException {
         return ResponseEntity.ok(orderService.getOrder(id));
     }
 
     @GetMapping("/user/{user_id}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<?> findByUserId (
             @Valid @PathVariable("user_id") Long userId
     ) {
@@ -55,6 +59,7 @@ public class OrderController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateOrder (
         @Valid @PathVariable Long id,
         @Valid @RequestBody OrderDTO orderDTO,
@@ -75,6 +80,7 @@ public class OrderController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteOrder (@Valid @PathVariable Long id) throws DataNotFoundException {
         // Delete soft => update field active
         orderService.deleteOrder(id);

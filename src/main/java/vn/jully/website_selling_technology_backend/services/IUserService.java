@@ -5,7 +5,7 @@ import vn.jully.website_selling_technology_backend.entities.User;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
 
 public interface IUserService {
-    User insertUser (UserDTO userDTO);
+    User insertUser (UserDTO userDTO) throws Exception;
 
     String login (String email, String password) throws Exception;
 }
