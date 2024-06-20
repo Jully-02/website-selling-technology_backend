@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class SpecificationService implements ISpecificationService{
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
     @Override
+    @Transactional
     public Specification insertSpecification(SpecificationDTO specificationDTO) throws DataNotFoundException {
         Product existingProduct = productRepository.findById(specificationDTO.getProductId())
                 .orElseThrow(() -> new DataNotFoundException("Cannot find Product with ID = " + specificationDTO.getProductId()));
@@ -29,13 +31,14 @@ public class SpecificationService implements ISpecificationService{
     }
 
     @Override
-    public Specification getSpecification (Long id) throws DataNotFoundException {
+    public Specification getSpecification (Long id) throws Exception {
         return specificationRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find Specification with ID = " + id));
     }
 
     @Override
-    public Specification updateSpecification(Long id, SpecificationDTO specificationDTO) throws DataNotFoundException {
+    @Transactional
+    public Specification updateSpecification(Long id, SpecificationDTO specificationDTO) throws Exception {
         Specification existingSpecification = getSpecification(id);
         Product existingProduct = productRepository.findById(specificationDTO.getProductId())
                 .orElseThrow(() -> new DataNotFoundException("Cannot find Product with ID = " + specificationDTO.getProductId()));
@@ -59,6 +62,7 @@ public class SpecificationService implements ISpecificationService{
     }
 
     @Override
+    @Transactional
     public void deleteSpecification(Long id) {
         specificationRepository.deleteById(id);
     }

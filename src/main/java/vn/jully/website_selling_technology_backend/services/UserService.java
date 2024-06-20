@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,6 +29,7 @@ public class UserService implements IUserService{
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     @Override
+    @Transactional
     public User insertUser(UserDTO userDTO) throws Exception{
         String email = userDTO.getEmail();
         // Check if email exists or not?

@@ -1,8 +1,11 @@
 package vn.jully.website_selling_technology_backend.services;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import vn.jully.website_selling_technology_backend.dtos.BrandDTO;
 import vn.jully.website_selling_technology_backend.entities.Brand;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
+import vn.jully.website_selling_technology_backend.responses.BrandResponse;
 
 import java.util.List;
 
@@ -11,7 +14,7 @@ public interface IBrandService {
 
     Brand getBrandById (Long id) throws DataNotFoundException;
 
-    List<Brand> getAllBrands ();
+    public Page<BrandResponse> getAllBrands(PageRequest pageRequest);
 
     Brand updateBrand (Long id, BrandDTO brandDTO) throws DataNotFoundException;
 

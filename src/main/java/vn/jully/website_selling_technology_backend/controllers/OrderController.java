@@ -41,13 +41,11 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<?> getOrder (@PathVariable("id") Long id) throws DataNotFoundException {
         return ResponseEntity.ok(orderService.getOrder(id));
     }
 
     @GetMapping("/user/{user_id}")
-    @PreAuthorize("permitAll()")
     public ResponseEntity<?> findByUserId (
             @Valid @PathVariable("user_id") Long userId
     ) {

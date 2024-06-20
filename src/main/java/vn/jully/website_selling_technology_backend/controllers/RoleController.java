@@ -3,6 +3,7 @@ package vn.jully.website_selling_technology_backend.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.List;
 public class RoleController {
     private final IRoleService roleService;
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> insertRole (
             @Valid @RequestBody RoleDTO roleDTO,
             BindingResult result
@@ -48,6 +50,7 @@ public class RoleController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateRole (
             @PathVariable("id") Long id,
             @Valid @RequestBody RoleDTO roleDTO,
@@ -68,6 +71,7 @@ public class RoleController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteRole (@PathVariable("id") Long id) {
         roleService.deleteRole(id);
         return ResponseEntity.ok("Deleted Role with ID = " + id);

@@ -3,6 +3,7 @@ package vn.jully.website_selling_technology_backend.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.List;
 public class ShippingMethodController {
     private final IShippingMethodService shippingMethodService;
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> insertShippingMethod (
             @Valid @RequestBody ShippingMethodDTO shippingMethodDTO,
             BindingResult result
@@ -48,6 +50,7 @@ public class ShippingMethodController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateShippingMethod (
             @PathVariable("id") Long id,
             @Valid @RequestBody ShippingMethodDTO shippingMethodDTO,
@@ -68,6 +71,7 @@ public class ShippingMethodController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteShippingMethod (@PathVariable("id") Long id) {
         shippingMethodService.deleteShippingMethod(id);
         return ResponseEntity.ok("Deleted Shipping method successfully");

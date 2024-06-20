@@ -3,6 +3,7 @@ package vn.jully.website_selling_technology_backend.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.List;
 public class SpecificationController {
     private final ISpecificationService specificationService;
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> insertSpecification (
             @Valid @RequestBody SpecificationDTO specificationDTO,
             BindingResult result
@@ -40,12 +42,13 @@ public class SpecificationController {
     @GetMapping("/{id}")
     public ResponseEntity<Specification> getSpecification (
             @PathVariable("id") Long id
-    ) throws DataNotFoundException {
+    ) throws Exception {
         Specification specification = specificationService.getSpecification(id);
         return ResponseEntity.ok(specification);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateSpecification (
             @PathVariable("id") Long id,
             @Valid @RequestBody SpecificationDTO specificationDTO,
@@ -66,6 +69,7 @@ public class SpecificationController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteSpecification (
             @PathVariable("id") Long id
     ) {

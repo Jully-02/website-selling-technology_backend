@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class OrderDetailService implements IOrderDetailService{
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
     @Override
+    @Transactional
     public OrderDetailResponse insertOrderDetail(OrderDetailDTO orderDetailDTO) throws DataNotFoundException {
         Order existingOrder = orderRepository.findById(orderDetailDTO.getOrderId())
                 .orElseThrow(() -> new DataNotFoundException("Cannot find Order with ID = " + orderDetailDTO.getOrderId()));
@@ -50,6 +52,7 @@ public class OrderDetailService implements IOrderDetailService{
     }
 
     @Override
+    @Transactional
     public OrderDetailResponse updateOrderDetail(Long id, OrderDetailDTO orderDetailDTO) throws DataNotFoundException {
         OrderDetail existingOrderDetail = orderDetailRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find Order detail with ID = " + id));
@@ -87,6 +90,7 @@ public class OrderDetailService implements IOrderDetailService{
     }
 
     @Override
+    @Transactional
     public void deleteOrderDetail(Long id) {
         orderDetailRepository.deleteById(id);
     }

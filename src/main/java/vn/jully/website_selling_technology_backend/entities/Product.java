@@ -40,23 +40,6 @@ public class Product extends BaseEntity{
     @Column(name = "average_rate")
     private float averageRate;
 
-//    @Column(name = "created_at")
-//    private LocalDateTime createdAt;
-//
-//    @Column(name = "updated_at")
-//    private LocalDateTime updatedAt;
-//
-//    @PrePersist
-//    protected void onCreate () {
-//        createdAt = LocalDateTime.now();
-//        updatedAt = LocalDateTime.now();
-//    }
-//
-//    @PreUpdate
-//    protected void onUpdate () {
-//        updatedAt = LocalDateTime.now();
-//    }
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "specification_id")
     @JsonIgnore
@@ -85,7 +68,6 @@ public class Product extends BaseEntity{
             fetch = FetchType.LAZY,
             cascade = CascadeType.ALL
     )
-    @JsonIgnore
     private List<ProductImage> productImageList;
 
     @OneToMany(mappedBy = "product",

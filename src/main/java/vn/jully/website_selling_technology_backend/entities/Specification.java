@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -85,5 +86,6 @@ public class Specification {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "product_id")
+    @JsonIgnore
     private Product product;
 }

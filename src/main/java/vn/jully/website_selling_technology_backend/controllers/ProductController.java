@@ -4,12 +4,14 @@ import com.github.javafaker.Faker;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -29,10 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("${api.prefix}/products")
@@ -40,6 +39,7 @@ import java.util.UUID;
 public class ProductController {
     private final IProductService productService;
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> insertProduct(
             @Valid @RequestBody ProductDTO productDTO,
             BindingResult result
@@ -60,7 +60,8 @@ public class ProductController {
     }
 
     @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    private ResponseEntity<?> uploadImages (
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> uploadImages (
             @PathVariable("id") Long id,
             @ModelAttribute("files") List<MultipartFile> files
     ) {
@@ -130,16 +131,68 @@ public class ProductController {
         return contentType != null && contentType.startsWith("image/");
     }
 
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<?> viewImage (@PathVariable String imageName) {
+        try {
+            Path imagePath = Paths.get("uploads/" + imageName);
+            UrlResource resource = new UrlResource(imagePath.toUri());
+
+            if (resource.exists()) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(resource);
+            } else {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(new UrlResource(Paths.get("uploads/notfound.png").toUri()));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping("")
     public ResponseEntity<ProductListResponse> getAllProducts(
-            @RequestParam("page") int page,
-            @RequestParam("limit") int limit
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "", name = "category-ids") String categoryIds,
+            @RequestParam(defaultValue = "", name = "brand-ids") String brandIds,
+            @RequestParam(defaultValue = "default", name ="sort") String sortOption,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "16") int limit
     ) {
+        Sort sort = switch (sortOption) {
+            case "popularity" -> Sort.by("id").descending();
+            case "latest" -> Sort.by("createdAt").descending();
+            case "high" -> Sort.by("price").descending();
+            case "low" -> Sort.by("price").ascending();
+            default -> Sort.by("id").ascending(); // Default sorting
+        };
         // Create Pageable from page and limit information
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
-                Sort.by("createdAt").descending());
-        Page<ProductResponse> productPage = productService.getAllProducts(pageRequest);
+//                Sort.by("createdAt").descending());
+                sort);
+        Page<ProductResponse> productPage;
+        List<Long> brandList = null;
+        if (!brandIds.equals("")) {
+            brandList = Arrays.stream(brandIds.split(","))
+                    .map(Long::parseLong)
+                    .toList();
+            if (brandList.isEmpty()) {
+                brandList = null;
+            }
+        }
+
+        List<Long> categoryList = null;
+        if (!categoryIds.equals("")) {
+            categoryList = Arrays.stream(categoryIds.split(","))
+                    .map(Long::parseLong)
+                    .toList();
+            if (categoryList.isEmpty()) {
+                categoryList = null;
+            }
+        }
+        productPage = productService.searchProducts(categoryList, categoryList == null ? 0 : categoryList.size(), brandList, keyword, pageRequest);
         // Get total pages
         int totalPages = productPage.getTotalPages();
         List<ProductResponse> productResponses = productPage.getContent();
@@ -156,6 +209,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         try {
             productService.deleteProduct(id);
@@ -166,12 +220,20 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateProduct (
             @PathVariable("id") Long id,
             @Valid @RequestBody ProductDTO productDTO,
             BindingResult result
     ) {
         try {
+            if (result.hasErrors()) {
+                List<String> errorMessages = result.getFieldErrors()
+                        .stream()
+                        .map(FieldError::getDefaultMessage)
+                        .toList();
+                return ResponseEntity.badRequest().body(errorMessages);
+            }
             Product updatedProduct = productService.updateProduct(id, productDTO);
             return ResponseEntity.ok(updatedProduct);
         } catch (Exception e) {

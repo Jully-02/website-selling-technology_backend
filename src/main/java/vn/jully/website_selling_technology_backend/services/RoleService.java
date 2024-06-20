@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,14 @@ public class RoleService implements IRoleService{
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
     @Override
+    @Transactional
     public Role insertRole(RoleDTO roleDTO) {
         Role role = modelMapper.map(roleDTO, Role.class);
         return roleRepository.save(role);
     }
 
     @Override
+    @Transactional
     public Role updateRole(Long id, RoleDTO roleDTO) throws DataNotFoundException {
         Role existingRole = getRole(id);
         modelMapper.map(roleDTO, existingRole);
@@ -41,6 +44,7 @@ public class RoleService implements IRoleService{
     }
 
     @Override
+    @Transactional
     public void deleteRole(Long id) {
         roleRepository.deleteById(id);
     }

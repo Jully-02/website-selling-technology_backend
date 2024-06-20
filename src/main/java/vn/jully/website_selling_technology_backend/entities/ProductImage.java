@@ -22,9 +22,11 @@ public class ProductImage {
     private long id;
 
     @Column(name = "image_name", length = 256)
+    @JsonProperty("image_name")
     private String imageName;
 
     @Column(name = "image_url", length = 256)
+    @JsonProperty("image_url")
     private String imageUrl;
 
     @ManyToOne(cascade = {

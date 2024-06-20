@@ -3,6 +3,7 @@ package vn.jully.website_selling_technology_backend.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ import java.util.List;
 public class OrderDetailController {
     private final IOrderDetailService orderDetailService;
     @PostMapping("")
+    @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> insertOrderDetail (
             @Valid @RequestBody OrderDetailDTO orderDetailDTO,
             BindingResult result
@@ -51,6 +53,7 @@ public class OrderDetailController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateOrderDetail (
             @PathVariable("id") Long id,
             @Valid @RequestBody OrderDetailDTO orderDetailDTO,
@@ -71,6 +74,7 @@ public class OrderDetailController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteOrderDetail (@PathVariable("id") Long id) {
         orderDetailService.deleteOrderDetail(id);
         return ResponseEntity.ok("Deleted Order detail successfully");

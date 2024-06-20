@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,12 +24,13 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ProductService implements IProductService{
+public class ProductService implements IProductService {
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final ProductImageRepository productImageRepository;
     @Override
+    @Transactional
     public Product insertProduct(ProductDTO productDTO) throws DataNotFoundException {
         List<Category> categoryList = productDTO.getCategoryIds().stream()
                 .map(categoryId -> {
@@ -63,11 +65,21 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
-        return productRepository.findAll(pageRequest).map(ProductResponse::convertToProductResponse);
+    public Page<ProductResponse> searchProducts(
+            List<Long> categoryIds,
+            long categoryCount,
+            List<Long> brandIds,
+            String keyword,
+            PageRequest pageRequest
+    ) {
+        Page<Product> productsPage;
+        productsPage = productRepository.searchProducts(categoryIds, categoryCount,brandIds, keyword, pageRequest);
+
+        return productsPage.map(ProductResponse::convertToProductResponse);
     }
 
     @Override
+    @Transactional
     public Product updateProduct(Long id, ProductDTO productDTO) throws DataNotFoundException {
         Product existingProduct = getProductById(id);
         if (existingProduct != null) {
@@ -98,6 +110,7 @@ public class ProductService implements IProductService{
     }
 
     @Override
+    @Transactional
     public void deleteProduct(Long id) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         optionalProduct.ifPresent(productRepository::delete);
@@ -109,6 +122,7 @@ public class ProductService implements IProductService{
     }
 
     @Override
+    @Transactional
     public ProductImage insertProductImage (
             Long productId,
             ProductImageDTO productImageDTO

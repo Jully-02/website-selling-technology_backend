@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class OrderService implements IOrderService {
     private final PaymentMethodRepository paymentMethodRepository;
     private final ModelMapper modelMapper;
     @Override
+    @Transactional
     public OrderResponse insertOrder(OrderDTO orderDTO) throws DataNotFoundException {
         User existingUser = userRepository.findById(orderDTO.getUserId())
                 .orElseThrow(() -> new DataNotFoundException("Cannot find User with ID = " + orderDTO.getUserId()));
@@ -76,6 +78,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    @Transactional
     public OrderResponse updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException {
         Order existingOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find Order with ID = " + id));
@@ -122,6 +125,7 @@ public class OrderService implements IOrderService {
     }
 
     @Override
+    @Transactional
     public void deleteOrder(Long id) throws DataNotFoundException {
         Order existingOrder = orderRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find Order with ID = " + id));

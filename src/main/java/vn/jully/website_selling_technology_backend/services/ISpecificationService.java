@@ -9,11 +9,11 @@ import java.util.List;
 public interface ISpecificationService {
     Specification insertSpecification (SpecificationDTO specificationDTO) throws DataNotFoundException;
 
-    Specification updateSpecification (Long id, SpecificationDTO specificationDTO) throws DataNotFoundException;
+    Specification updateSpecification (Long id, SpecificationDTO specificationDTO) throws Exception;
 
     List<Specification> getAllSpecifications ();
 
-    Specification getSpecification (Long id) throws DataNotFoundException;
+    Specification getSpecification (Long id) throws Exception;
 
     void deleteSpecification (Long id);
 }

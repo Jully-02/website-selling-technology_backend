@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,14 @@ public class ShippingMethodService implements IShippingMethodService{
     private final ShippingMethodRepository shippingMethodRepository;
     private final ModelMapper modelMapper;
     @Override
+    @Transactional
     public ShippingMethod insertShippingMethod(ShippingMethodDTO shippingMethodDTO) {
         ShippingMethod shippingMethod = modelMapper.map(shippingMethodDTO, ShippingMethod.class);
         return shippingMethodRepository.save(shippingMethod);
     }
 
     @Override
+    @Transactional
     public ShippingMethod updateShippingMethod(Long id, ShippingMethodDTO shippingMethodDTO) throws DataNotFoundException {
         ShippingMethod existingShippingMethod = getShippingMethod(id);
         modelMapper.map(shippingMethodDTO, existingShippingMethod);
@@ -41,6 +44,7 @@ public class ShippingMethodService implements IShippingMethodService{
     }
 
     @Override
+    @Transactional
     public void deleteShippingMethod(Long id) {
         shippingMethodRepository.deleteById(id);
     }

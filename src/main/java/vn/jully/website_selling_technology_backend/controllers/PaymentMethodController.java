@@ -3,6 +3,7 @@ package vn.jully.website_selling_technology_backend.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,7 @@ import java.util.List;
 public class PaymentMethodController {
     private final IPaymentMethodService paymentMethodService;
     @PostMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> insertPaymentMethod (
             @Valid @RequestBody PaymentMethodDTO paymentMethodDTO,
             BindingResult result
@@ -52,6 +54,7 @@ public class PaymentMethodController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updatePaymentMethod (
             @PathVariable("id") Long id,
             @Valid @RequestBody PaymentMethodDTO paymentMethodDTO,
@@ -72,6 +75,7 @@ public class PaymentMethodController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deletePaymentMethod (@PathVariable("id") Long id) {
         paymentMethodService.deletePaymentMethod(id);
         return ResponseEntity.ok("Deleted Payment method successfully");

@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,14 @@ public class PaymentMethodService implements IPaymentMethodService{
     private final PaymentMethodRepository paymentMethodRepository;
     private final ModelMapper modelMapper;
     @Override
+    @Transactional
     public PaymentMethod insertPaymentMethod(PaymentMethodDTO paymentMethodDTO) {
         PaymentMethod paymentMethod = modelMapper.map(paymentMethodDTO, PaymentMethod.class);
         return paymentMethodRepository.save(paymentMethod);
     }
 
     @Override
+    @Transactional
     public PaymentMethod updatePaymentMethod(Long id, PaymentMethodDTO paymentMethodDTO) throws DataNotFoundException {
         PaymentMethod existingPaymentMethod = getPaymentMethod(id);
         modelMapper.map(paymentMethodDTO, existingPaymentMethod);
@@ -41,6 +44,7 @@ public class PaymentMethodService implements IPaymentMethodService{
     }
 
     @Override
+    @Transactional
     public void deletePaymentMethod (Long id) {
         paymentMethodRepository.deleteById(id);
     }
