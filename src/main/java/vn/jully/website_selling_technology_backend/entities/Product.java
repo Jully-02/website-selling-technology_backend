@@ -87,6 +87,12 @@ public class Product extends BaseEntity{
     @JsonIgnore
     private List<FavoriteProduct> favoriteProductList;
 
+    @OneToMany(mappedBy = "product",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL
+    )
+    private List<CartItem> cartItemList;
+
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH

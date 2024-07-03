@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.data.util.Pair;
-import vn.jully.website_selling_technology_backend.components.JwtTokenUtil;
+import vn.jully.website_selling_technology_backend.components.JwtTokenUtils;
 import vn.jully.website_selling_technology_backend.entities.User;
 
 @Component
@@ -27,7 +27,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     @Value("${api.prefix}")
     private String apiPrefix;
     private final UserDetailsService userDetailsService;
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtil;
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
                                     @NotNull HttpServletResponse response,
@@ -73,7 +73,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/brands", apiPrefix), "GET"),
                 Pair.of(String.format("%s/banners", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
-                Pair.of(String.format("%s/users/login", apiPrefix), "POST")
+                Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
+                Pair.of(String.format("%s/users/email-unique", apiPrefix), "GET"),
+                Pair.of(String.format("%s/users/active-account", apiPrefix), "GET"),
+                Pair.of(String.format("%s/cart-items", apiPrefix), "GET"),
+                Pair.of(String.format("%s/cart-items", apiPrefix), "POST"),
+                Pair.of(String.format("%s/cart-items", apiPrefix), "PUT"),
+                Pair.of(String.format("%s/cart-items", apiPrefix), "DELETE")
         );
         for (Pair<String, String> bypassToken : bypassTokens) {
             if (request.getServletPath().contains(bypassToken.getFirst())

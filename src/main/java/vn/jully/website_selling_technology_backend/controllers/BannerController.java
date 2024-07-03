@@ -12,10 +12,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import vn.jully.website_selling_technology_backend.components.LocalizationUtils;
 import vn.jully.website_selling_technology_backend.dtos.BannerDTO;
 import vn.jully.website_selling_technology_backend.entities.Banner;
+import vn.jully.website_selling_technology_backend.responses.BannerResponse;
 import vn.jully.website_selling_technology_backend.services.BannerService;
 import vn.jully.website_selling_technology_backend.services.IBannerService;
+import vn.jully.website_selling_technology_backend.utils.MessageKey;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,10 +34,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BannerController {
     private final IBannerService bannerService;
+    private final LocalizationUtils localizationUtils;
 
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> insertBanner (
+    public ResponseEntity<BannerResponse> insertBanner (
             @Valid @RequestBody BannerDTO bannerDTO,
             BindingResult result
     ) {
@@ -44,12 +48,28 @@ public class BannerController {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
+                return ResponseEntity.badRequest().body(
+                        BannerResponse
+                                .builder()
+                                .message(localizationUtils.getLocalizedMessage(MessageKey.INVALID_ERROR,errorMessages.toString()))
+                                .build()
+                );
             }
             Banner banner = bannerService.insertBanner(bannerDTO);
-            return ResponseEntity.ok(banner);
+            return ResponseEntity.ok(
+                    BannerResponse
+                            .builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.INSERT_SUCCESSFULLY))
+                            .banner(banner)
+                            .build()
+            );
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(
+                    BannerResponse
+                            .builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.INSERT_FAILED, e.getMessage()))
+                            .build()
+            );
         }
     }
 

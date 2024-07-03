@@ -8,7 +8,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import vn.jully.website_selling_technology_backend.components.JwtTokenUtil;
+import vn.jully.website_selling_technology_backend.components.JwtTokenUtils;
 import vn.jully.website_selling_technology_backend.dtos.UserDTO;
 import vn.jully.website_selling_technology_backend.entities.Role;
 import vn.jully.website_selling_technology_backend.entities.User;
@@ -19,6 +19,7 @@ import vn.jully.website_selling_technology_backend.repositories.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +27,9 @@ public class UserService implements IUserService{
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenUtils jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
+    private final IEmailService emailService;
     @Override
     @Transactional
     public User insertUser(UserDTO userDTO) throws Exception{
@@ -56,6 +58,7 @@ public class UserService implements IUserService{
                 .builder()
                 .firstName(userDTO.getFirstName())
                 .lastName(userDTO.getLastName())
+                .fullName(userDTO.getFirstName() + " " + userDTO.getLastName())
                 .email(userDTO.getEmail())
                 .phoneNumber(userDTO.getPhoneNumber())
                 .dateOfBirth(userDTO.getDateOfBirth())
@@ -70,7 +73,14 @@ public class UserService implements IUserService{
             String encodedPassword = passwordEncoder.encode(password);
             newUser.setPassword(encodedPassword);
         }
+
+        newUser.setActiveCode(UUID.randomUUID().toString());
+        newUser.setActive(false);
+
         userRepository.save(newUser);
+
+        sendEmailActive(newUser.getEmail(), newUser.getActiveCode());
+
         return newUser;
     }
 
@@ -96,5 +106,40 @@ public class UserService implements IUserService{
         // Authenticate with Java Spring security
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
+    }
+
+    @Override
+    public boolean emailUnique (String email) {
+        return userRepository.existsByEmail(email);
+    };
+
+    private void sendEmailActive (String email, String activeCode) {
+        String subject = "Confirm customer account at Gizmos Website";
+        String text = "<!DOCTYPE html>" +
+                "<html><body>" +
+                "Please use the following code to activate your account <" + email + ">:<br/><br/>" +
+                "<h1>" + activeCode + "</h1>" +
+                "<br/> Click on the link to activate your account: <br/>" +
+                "<a href=\"http://localhost:3000/active-account/" + email + "/" + activeCode + "\">" +
+                "http://localhost:3000/active-account/" + email + "/" + activeCode + "</a>" +
+                "</body></html>";
+        emailService.sendMessage("gizmos.services@gmail.com", email, subject, text);
+    }
+
+    @Override
+    public int activeAccount (String email, String activeCode) throws DataNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find User with email = " + email));
+
+        if (user.isActive()) {
+            return 1;
+        }
+
+        if (activeCode.equals(user.getActiveCode())) {
+            user.setActive(true);
+            userRepository.save(user);
+            return 2;
+        }
+        return 0;
     }
 }

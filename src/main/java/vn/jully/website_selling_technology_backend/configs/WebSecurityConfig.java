@@ -38,9 +38,22 @@ public class WebSecurityConfig {
                        requests
                                .requestMatchers(
                                        String.format("%s/users/register", apiPrefix),
-                                       String.format("%s/users/login", apiPrefix)
+                                       String.format("%s/users/login", apiPrefix),
+                                       String.format("%s/users/email-unique", apiPrefix),
+                                       String.format("%s/users/active-account", apiPrefix)
                                )
                                .permitAll()
+                               .requestMatchers(HttpMethod.GET,
+                                       String.format("%s/cart-items", apiPrefix)).permitAll()
+                               .requestMatchers(HttpMethod.GET,
+                                       String.format("%s/cart-items/**", apiPrefix)).permitAll()
+                               .requestMatchers(HttpMethod.PUT,
+                                       String.format("%s/cart-items/**", apiPrefix)).permitAll()
+                               .requestMatchers(HttpMethod.POST,
+                                       String.format("%s/cart-items", apiPrefix)).permitAll()
+                               .requestMatchers(HttpMethod.DELETE,
+                                       String.format("%s/cart-items/**", apiPrefix)).permitAll()
+
                                .requestMatchers(HttpMethod.GET,
                                        String.format("%s/roles**", apiPrefix)).permitAll()
 

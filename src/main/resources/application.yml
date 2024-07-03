@@ -17,6 +17,22 @@ spring:
       hibernate:
       dialect: org.hibernate.dialect.MySQL8Dialect
       format_sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: gizmos.services@gmail.com
+    password: aiwgpldbgacwkeyd
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    default-locale: en
+
 api:
   prefix: api/v1
 jwt:

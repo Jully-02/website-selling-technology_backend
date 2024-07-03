@@ -29,6 +29,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "last_name", length = 255)
     private String lastName;
 
+    @Column(name = "full_name")
+    private String fullName;
+
     @Column(name = "phone_number", length = 255)
     private String phoneNumber;
 
@@ -50,6 +53,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "is_active")
     private boolean isActive;
 
+    @Column(name = "active_code")
+    private String activeCode;
+
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
@@ -67,6 +73,15 @@ public class User extends BaseEntity implements UserDetails {
             }
     )
     private List<FeedBack> feedBackList;
+
+    @OneToMany(mappedBy = "user",
+              fetch = FetchType.LAZY,
+              cascade = {
+        CascadeType.PERSIST, CascadeType.MERGE,
+                CascadeType.DETACH, CascadeType.REFRESH
+    }
+    )
+    private List<CartItem> cartItemList;
 
     @OneToMany(mappedBy = "user",
             fetch = FetchType.LAZY,
