@@ -10,6 +10,7 @@ import vn.jully.website_selling_technology_backend.entities.OrderStatus;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Builder
@@ -47,6 +48,10 @@ public class OrderDTO {
     @Min(value = 0, message = "Total money must be >= 0")
     private float totalMoney;
 
+    @JsonProperty("sub_total")
+    @Min(value = 0, message = "Sub total money must be >= 0")
+    private float subTotal;
+
     @JsonProperty("shipping_cost")
     @Min(value = 0, message = "Delivery cost must be >= 0")
     private float shippingCost;
@@ -54,6 +59,9 @@ public class OrderDTO {
     @JsonProperty("payment_cost")
     @Min(value = 0, message = "Payment cost must be >= 0")
     private float paymentCost;
+
+    @JsonProperty("payment_status")
+    private boolean paymentStatus;
 
     @JsonProperty("shipping_address")
     @NotBlank(message = "Shipping address is required")
@@ -71,4 +79,7 @@ public class OrderDTO {
     @NotNull(message = "Shipping method ID is required")
     @Min(value = 1, message = "Shipping method ID must be > 0")
     private Long shippingMethodId;
+
+    @JsonProperty("cart_items")
+    private List<CartItemDTO> cartItems;
 }

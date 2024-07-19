@@ -39,6 +39,9 @@ public class OrderResponse extends BaseResponse{
 
     private OrderStatus status;
 
+    @JsonProperty("sub_total")
+    private float subTotal;
+
     @JsonProperty("total_money")
     private float totalMoney;
 
@@ -68,4 +71,7 @@ public class OrderResponse extends BaseResponse{
 
     @JsonProperty("user_id")
     private Long userId;
+
+    @JsonProperty("payment_status")
+    private boolean paymentStatus;
 }

@@ -38,3 +38,15 @@ api:
 jwt:
   expiration: 2592000 # 30 days = 30 * 24 * 60 * 60
   secretKey: QKtxW32nmnY/2anIVO3gKjkmYBnG8KE+5sOCiaubtLY=
+
+payment:
+  vnPay:
+    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    tmnCode: S01X4W3L
+    secretKey: 6KYR7JXW0RVE4ZMQ51FVE5YO8E8NSCYJ
+    returnUrl: http://localhost:8080/api/v1/payments/vn-pay-callback
+    version: 2.1.0
+    command: pay
+    orderType: other
+
+logging.level.org.springframework.security: DEBUG

@@ -68,6 +68,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     private boolean isBypassToken (@NotNull HttpServletRequest request) {
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
                 Pair.of(String.format("%s/products", apiPrefix), "GET"),
+                Pair.of(String.format("%s/products/get-products", apiPrefix), "GET"),
                 Pair.of(String.format("%s/categories", apiPrefix), "GET"),
                 Pair.of(String.format("%s/specifications", apiPrefix), "GET"),
                 Pair.of(String.format("%s/brands", apiPrefix), "GET"),
@@ -76,10 +77,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/email-unique", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/active-account", apiPrefix), "GET"),
-                Pair.of(String.format("%s/cart-items", apiPrefix), "GET"),
-                Pair.of(String.format("%s/cart-items", apiPrefix), "POST"),
-                Pair.of(String.format("%s/cart-items", apiPrefix), "PUT"),
-                Pair.of(String.format("%s/cart-items", apiPrefix), "DELETE")
+                Pair.of(String.format("%s/payment-methods", apiPrefix), "GET"),
+                Pair.of(String.format("%s/payments/vn-pay-callback", apiPrefix), "GET"),
+                Pair.of(String.format("%s/shipping-methods", apiPrefix), "GET")
         );
         for (Pair<String, String> bypassToken : bypassTokens) {
             if (request.getServletPath().contains(bypassToken.getFirst())

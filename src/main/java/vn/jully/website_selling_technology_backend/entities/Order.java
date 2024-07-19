@@ -71,6 +71,12 @@ public class Order extends BaseEntity{
     @Column(name = "tracking_number")
     private String trackingNumber;
 
+    @Column(name = "payment_status")
+    private boolean paymentStatus;
+
+    @Column(name = "sub_total")
+    private float subTotal;
+
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH

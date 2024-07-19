@@ -2,6 +2,7 @@ package vn.jully.website_selling_technology_backend.services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +17,7 @@ import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundExcept
 import vn.jully.website_selling_technology_backend.exceptions.PermissionDenyException;
 import vn.jully.website_selling_technology_backend.repositories.RoleRepository;
 import vn.jully.website_selling_technology_backend.repositories.UserRepository;
+import vn.jully.website_selling_technology_backend.responses.UserResponse;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +32,7 @@ public class UserService implements IUserService{
     private final JwtTokenUtils jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     private final IEmailService emailService;
+    private final ModelMapper modelMapper;
     @Override
     @Transactional
     public User insertUser(UserDTO userDTO) throws Exception{
@@ -99,6 +102,11 @@ public class UserService implements IUserService{
                 throw new BadCredentialsException("Wrong email or password");
             }
         }
+
+//        if (!optionalUser.get().isActive()) {
+//            throw new DataNotFoundException()
+//        }
+
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 email, password,
                 existingUser.getAuthorities()
@@ -141,5 +149,19 @@ public class UserService implements IUserService{
             return 2;
         }
         return 0;
+    }
+
+    @Override
+    public UserResponse getUserDetailsFromToken(String token) throws Exception {
+        if (jwtTokenUtil.isTokenExpired(token)) {
+            throw new Exception("Token is expired");
+        }
+        String email = jwtTokenUtil.extractEmail(token);
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            return modelMapper.map(user.get(), UserResponse.class);
+        } else {
+            throw new Exception("User not found");
+        }
     }
 }

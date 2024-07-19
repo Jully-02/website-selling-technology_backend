@@ -10,6 +10,7 @@ import vn.jully.website_selling_technology_backend.components.LocalizationUtils;
 import vn.jully.website_selling_technology_backend.dtos.CartItemDTO;
 import vn.jully.website_selling_technology_backend.entities.CartItem;
 import vn.jully.website_selling_technology_backend.responses.CartItemResponse;
+import vn.jully.website_selling_technology_backend.responses.Response;
 import vn.jully.website_selling_technology_backend.services.ICartItemService;
 import vn.jully.website_selling_technology_backend.utils.MessageKey;
 
@@ -23,7 +24,7 @@ public class CartItemController {
     private final LocalizationUtils localizationUtils;
 
     @PostMapping("")
-    public ResponseEntity<CartItemResponse> insertCartItem (
+    public ResponseEntity<Response<CartItemResponse>> insertCartItem (
             @Valid @RequestBody CartItemDTO cartItemDTO,
             BindingResult result
     ) {
@@ -34,7 +35,7 @@ public class CartItemController {
                         .map(FieldError::getDefaultMessage)
                         .toList();
                 return ResponseEntity.badRequest().body(
-                        CartItemResponse.
+                        Response.<CartItemResponse>
                                 builder()
                                 .message(localizationUtils.getLocalizedMessage(MessageKey.INVALID_ERROR, errorMessages.toString()))
                                 .build()
@@ -42,15 +43,19 @@ public class CartItemController {
             }
             CartItem cartItem = cartItemService.insertCartItem(cartItemDTO);
             return ResponseEntity.ok(
-                    CartItemResponse
-                            .builder()
+                    Response.<CartItemResponse>
+                            builder()
                             .message(localizationUtils.getLocalizedMessage(MessageKey.INSERT_SUCCESSFULLY))
-                            .cartItem(cartItem)
+                            .data(CartItemResponse
+                                    .builder()
+                                    .productId(cartItem.getProduct().getId())
+                                    .quantity(cartItem.getQuantity())
+                                    .build())
                             .build()
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                    CartItemResponse.
+                    Response.<CartItemResponse>
                             builder()
                             .message(localizationUtils.getLocalizedMessage(MessageKey.INVALID_ERROR, e.getMessage()))
                             .build()
@@ -69,12 +74,26 @@ public class CartItemController {
     }
 
     @GetMapping("/users/{user-id}")
-    public ResponseEntity<?> getCartItemByUserId (@PathVariable("user-id") Long userId) throws Exception {
-        return ResponseEntity.ok(cartItemService.findByUserId(userId));
+    public ResponseEntity<Response<CartItemResponse>> getCartItemByUserId (@PathVariable("user-id") Long userId) throws Exception {
+        List<CartItem> cartItems = cartItemService.findByUserId(userId);
+        List<CartItemResponse> cartItemResponseList = cartItems.stream()
+                .map(cartItem -> CartItemResponse.builder()
+                        .id(cartItem.getId())
+                        .userId(cartItem.getUser().getId())
+                        .productId(cartItem.getProduct().getId())
+                        .quantity(cartItem.getQuantity())
+                        .build())
+                .toList();
+        return ResponseEntity.ok(
+                Response.<CartItemResponse>
+                        builder()
+                        .dataList(cartItemResponseList)
+                        .build()
+        );
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCartItem (
+    public ResponseEntity<Response<CartItemResponse>> updateCartItem (
             @PathVariable("id") Long id,
             @Valid @RequestBody CartItemDTO cartItemDTO,
             BindingResult result
@@ -87,24 +106,29 @@ public class CartItemController {
                         .map(FieldError::getDefaultMessage)
                         .toList();
                 return ResponseEntity.badRequest().body(
-                        CartItemResponse
-                                .builder()
+                        Response.<CartItemResponse>
+                                builder()
                                 .message(localizationUtils.getLocalizedMessage(MessageKey.INVALID_ERROR, errorMessage.toString()))
                                 .build()
                 );
             }
             CartItem cartItem = cartItemService.updateCartItem(id, cartItemDTO);
             return ResponseEntity.ok(
-                    CartItemResponse
-                            .builder()
+                    Response.<CartItemResponse>
+                            builder()
                             .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
-                            .cartItem(cartItem)
+                            .data(CartItemResponse
+                                    .builder()
+                                    .productId(cartItem.getProduct().getId())
+                                    .quantity(cartItem.getQuantity())
+                                    .build()
+                            )
                             .build()
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(
-                    CartItemResponse
-                            .builder()
+                    Response.<CartItemResponse>
+                            builder()
                             .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_FAILED, e.getMessage()))
                             .build()
             );
@@ -114,10 +138,55 @@ public class CartItemController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCartItem (@PathVariable("id") Long id) {
         return ResponseEntity.ok(
-                CartItemResponse
-                        .builder()
+                Response.<CartItemResponse>
+                        builder()
                         .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
                         .build()
         );
+    }
+
+    @DeleteMapping("/user-product")
+    public ResponseEntity<?> deleteCartItemByUserIdAndProductId (
+            @RequestParam("user-id") Long userId,
+            @RequestParam("product-id") Long productId
+    ) {
+        try {
+            cartItemService.deleteCartItemByUserIdAndProductId(userId, productId);
+            return ResponseEntity.ok(
+                    Response.<CartItemResponse>
+                                    builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+                            .build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    Response.<CartItemResponse>
+                            builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_FAILED, e.getMessage()))
+                            .build()
+            );
+        }
+    }
+
+    @DeleteMapping("/user/{user-id}")
+    public ResponseEntity<?> deleteCartItemByUserId (
+            @PathVariable("user-id") Long userId
+    ) {
+        try {
+            cartItemService.deleteCartItemByUserId(userId);
+            return ResponseEntity.ok(
+                    Response.<CartItemResponse>
+                                    builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+                            .build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    Response.<CartItemResponse>
+                                    builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_FAILED, e.getMessage()))
+                            .build()
+            );
+        }
     }
 }

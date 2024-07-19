@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class FavoriteProduct {
             CascadeType.DETACH, CascadeType.REFRESH
     })
     @JoinColumn(name = "product_id", nullable = false)
+    @JsonIgnore
     private Product product;
 
     @ManyToOne(cascade = {
@@ -29,5 +31,6 @@ public class FavoriteProduct {
             CascadeType.DETACH, CascadeType.REFRESH
     })
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 }

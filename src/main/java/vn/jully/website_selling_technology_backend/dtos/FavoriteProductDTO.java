@@ -1,6 +1,7 @@
-package vn.jully.website_selling_technology_backend.responses;
+package vn.jully.website_selling_technology_backend.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,16 +11,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CartItemResponse {
-    @JsonProperty("id")
-    private long id;
-
+public class FavoriteProductDTO {
+    @Min(value = 1, message = "User's ID must be > 0")
     @JsonProperty("user_id")
     private long userId;
 
     @JsonProperty("product_id")
+    @Min(value = 1, message = "Product's ID must be > 0")
     private long productId;
-
-    @JsonProperty("quantity")
-    private int quantity;
 }

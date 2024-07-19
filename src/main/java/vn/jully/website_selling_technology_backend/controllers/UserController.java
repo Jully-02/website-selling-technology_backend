@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import vn.jully.website_selling_technology_backend.dtos.UserDTO;
 import vn.jully.website_selling_technology_backend.dtos.UserLoginDTO;
 import vn.jully.website_selling_technology_backend.entities.User;
-import vn.jully.website_selling_technology_backend.responses.ActiveAccountResponse;
-import vn.jully.website_selling_technology_backend.responses.EmailUniqueResponse;
-import vn.jully.website_selling_technology_backend.responses.LoginResponse;
-import vn.jully.website_selling_technology_backend.responses.RegisterResponse;
+import vn.jully.website_selling_technology_backend.responses.*;
 import vn.jully.website_selling_technology_backend.services.IUserService;
 import vn.jully.website_selling_technology_backend.components.LocalizationUtils;
 import vn.jully.website_selling_technology_backend.utils.MessageKey;
@@ -93,7 +90,7 @@ public class UserController {
     @GetMapping("/email-unique")
     public ResponseEntity<EmailUniqueResponse> emailUnique (@RequestParam("email") String email) {
         boolean isUnique = userService.emailUnique(email);
-        if (isUnique) {
+        if (!isUnique) {
             return ResponseEntity.ok(
                     EmailUniqueResponse
                             .builder()
@@ -146,6 +143,17 @@ public class UserController {
                             .message(localizationUtils.getLocalizedMessage(e.getMessage()))
                             .build()
             );
+        }
+    }
+
+    @GetMapping("/details")
+    public ResponseEntity<UserResponse> getUserDetails (@RequestHeader("Authorization") String token) {
+        try {
+            String extractToken = token.substring(7);
+            return ResponseEntity.ok(userService.getUserDetailsFromToken(extractToken));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

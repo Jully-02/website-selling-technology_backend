@@ -6,20 +6,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CartItemResponse {
-    @JsonProperty("id")
-    private long id;
+public class Response<T> {
+    @JsonProperty("message")
+    private String message;
 
-    @JsonProperty("user_id")
-    private long userId;
+    @JsonProperty("data")
+    private T data;
 
-    @JsonProperty("product_id")
-    private long productId;
-
-    @JsonProperty("quantity")
-    private int quantity;
+    @JsonProperty("data_list")
+    private List<T> dataList;
 }

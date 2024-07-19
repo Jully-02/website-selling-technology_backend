@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,5 +36,6 @@ public class ShippingMethod {
                     CascadeType.DETACH, CascadeType.REFRESH
             }
     )
+    @JsonIgnore
     private List<Order> orderList;
 }

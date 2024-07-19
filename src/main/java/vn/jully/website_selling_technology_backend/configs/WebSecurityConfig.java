@@ -39,20 +39,47 @@ public class WebSecurityConfig {
                                .requestMatchers(
                                        String.format("%s/users/register", apiPrefix),
                                        String.format("%s/users/login", apiPrefix),
+                                       String.format("%s/users/details", apiPrefix),
                                        String.format("%s/users/email-unique", apiPrefix),
                                        String.format("%s/users/active-account", apiPrefix)
+
                                )
                                .permitAll()
+//                               .requestMatchers(HttpMethod.GET,
+//                                       String.format("%s/cart-items", apiPrefix)).permitAll()
+//                               .requestMatchers(HttpMethod.GET,
+//                                       String.format("%s/cart-items/**", apiPrefix)).permitAll()
+//                               .requestMatchers(HttpMethod.PUT,
+//                                       String.format("%s/cart-items/**", apiPrefix)).permitAll()
+//                               .requestMatchers(HttpMethod.POST,
+//                                       String.format("%s/cart-items", apiPrefix)).permitAll()
+//                               .requestMatchers(HttpMethod.DELETE,
+//                                       String.format("%s/cart-items/**", apiPrefix)).permitAll()
+
+//                               .requestMatchers(HttpMethod.GET,
+//                                       String.format("%s/favorites", apiPrefix)).permitAll()
+//                               .requestMatchers(HttpMethod.GET,
+//                                       String.format("%s/favorites/**", apiPrefix)).permitAll()
+//                               .requestMatchers(HttpMethod.PUT,
+//                                       String.format("%s/favorites/**", apiPrefix)).permitAll()
+//                               .requestMatchers(HttpMethod.POST,
+//                                       String.format("%s/favorites", apiPrefix)).permitAll()
+//                               .requestMatchers(HttpMethod.DELETE,
+//                                       String.format("%s/favorites/**", apiPrefix)).permitAll()
+//                               .requestMatchers(HttpMethod.DELETE,
+//                                       String.format("%s/favorites/user-product**", apiPrefix)).permitAll()
+
                                .requestMatchers(HttpMethod.GET,
-                                       String.format("%s/cart-items", apiPrefix)).permitAll()
+                                       String.format("%s/payment-methods", apiPrefix)).permitAll()
                                .requestMatchers(HttpMethod.GET,
-                                       String.format("%s/cart-items/**", apiPrefix)).permitAll()
-                               .requestMatchers(HttpMethod.PUT,
-                                       String.format("%s/cart-items/**", apiPrefix)).permitAll()
-                               .requestMatchers(HttpMethod.POST,
-                                       String.format("%s/cart-items", apiPrefix)).permitAll()
-                               .requestMatchers(HttpMethod.DELETE,
-                                       String.format("%s/cart-items/**", apiPrefix)).permitAll()
+                                       String.format("%s/payment-methods/**", apiPrefix)).permitAll()
+                               .requestMatchers(HttpMethod.GET,
+                                       String.format("%s/payments/vn-pay-callback**", apiPrefix)).permitAll()
+
+                               .requestMatchers(HttpMethod.GET,
+                                       String.format("%s/shipping-methods", apiPrefix)).permitAll()
+                               .requestMatchers(HttpMethod.GET,
+                                       String.format("%s/shipping-methods/**", apiPrefix)).permitAll()
 
                                .requestMatchers(HttpMethod.GET,
                                        String.format("%s/roles**", apiPrefix)).permitAll()
@@ -70,6 +97,8 @@ public class WebSecurityConfig {
                                         String.format("%s/products**", apiPrefix)).permitAll()
                                .requestMatchers(HttpMethod.GET,
                                        String.format("%s/products/*", apiPrefix)).permitAll()
+                               .requestMatchers(HttpMethod.GET,
+                                       String.format("%s/products/get-products**", apiPrefix)).permitAll()
                                .requestMatchers(HttpMethod.GET,
                                        String.format("%s/products/images/*", apiPrefix)).permitAll()
 

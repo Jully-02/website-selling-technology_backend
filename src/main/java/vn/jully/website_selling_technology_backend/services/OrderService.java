@@ -4,13 +4,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import vn.jully.website_selling_technology_backend.dtos.CartItemDTO;
 import vn.jully.website_selling_technology_backend.dtos.OrderDTO;
 import vn.jully.website_selling_technology_backend.entities.*;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
-import vn.jully.website_selling_technology_backend.repositories.OrderRepository;
-import vn.jully.website_selling_technology_backend.repositories.PaymentMethodRepository;
-import vn.jully.website_selling_technology_backend.repositories.ShippingMethodRepository;
-import vn.jully.website_selling_technology_backend.repositories.UserRepository;
+import vn.jully.website_selling_technology_backend.repositories.*;
 import vn.jully.website_selling_technology_backend.responses.OrderResponse;
 
 import java.time.LocalDate;
@@ -25,6 +23,8 @@ public class OrderService implements IOrderService {
     private final OrderRepository orderRepository;
     private final ShippingMethodRepository shippingMethodRepository;
     private final PaymentMethodRepository paymentMethodRepository;
+    private final OrderDetailRepository orderDetailRepository;
+    private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
     @Override
     @Transactional
@@ -34,6 +34,7 @@ public class OrderService implements IOrderService {
 
         ShippingMethod existingShippingMethod = shippingMethodRepository.findById(orderDTO.getShippingMethodId())
                 .orElseThrow(() -> new DataNotFoundException("Cannot find Shipping method with ID = " + orderDTO.getShippingMethodId()));
+
         PaymentMethod existingPaymentMethod = paymentMethodRepository.findById(orderDTO.getPaymentMethodId())
                 .orElseThrow(() -> new DataNotFoundException("Cannot find Payment method with ID = " + orderDTO.getPaymentMethodId()));
 
@@ -46,6 +47,7 @@ public class OrderService implements IOrderService {
         order.setShippingCost(existingShippingMethod.getCost());
 
         order.setStatus(OrderStatus.PENDING);
+        order.setPaymentStatus(false);
         order.setOrderDate(new Date());
         LocalDate shippingDate = orderDTO.getShippingDate() == null ? LocalDate.now() : orderDTO.getShippingDate();
         if (shippingDate.isBefore(LocalDate.now())) {
@@ -54,15 +56,35 @@ public class OrderService implements IOrderService {
         order.setShippingDate(shippingDate);
         order.setActive(true);
         orderRepository.save(order);
+
+
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        for (CartItemDTO cartItemDTO : orderDTO.getCartItems()) {
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(order);
+            Long productId = cartItemDTO.getProductId();
+            int quantity = cartItemDTO.getQuantity();
+
+            Product existingProduct = productRepository.findById(productId)
+                    .orElseThrow(() -> new DataNotFoundException("Cannot find Product with ID = " + productId));
+
+            orderDetail.setProduct(existingProduct);
+            orderDetail.setNumberOfProduct(quantity);
+            orderDetail.setPrice(existingProduct.getPrice());
+            orderDetails.add(orderDetail);
+        }
+        orderDetailRepository.saveAll(orderDetails);
+        
+        order.setSubTotal(order.getTotalMoney());
+        order.setTotalMoney(order.getTotalMoney() + existingShippingMethod.getCost() + existingPaymentMethod.getCost());
+
+        orderRepository.save(order);
         OrderResponse orderResponse = modelMapper.map(order, OrderResponse.class);
         orderResponse.setUserId(order.getUser().getId());
         orderResponse.setShippingMethodId(order.getShippingMethod().getId());
         orderResponse.setPaymentMethodId(order.getPaymentMethod().getId());
-//        List<Long> orderDetailIds = order.getOrderDetailList()
-//                .stream()
-//                .map(OrderDetail::getId)
-//                .toList();
-//        orderResponse.setOrderDetailIds(orderDetailIds);
+        order.setPaymentStatus(orderDTO.isPaymentStatus());
+
         return orderResponse;
     }
 

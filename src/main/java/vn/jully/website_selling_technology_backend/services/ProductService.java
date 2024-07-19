@@ -142,4 +142,10 @@ public class ProductService implements IProductService {
         }
         return productImageRepository.save(newProductImage);
     }
+
+    @Override
+    public List<ProductResponse> getProductsByIds(List<Long> productIds) {
+        List<Product> products = productRepository.getProductsByIds(productIds);
+        return products.stream().map(ProductResponse::convertToProductResponse).toList();
+    }
 }

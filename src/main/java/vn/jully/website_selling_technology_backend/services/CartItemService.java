@@ -1,5 +1,6 @@
 package vn.jully.website_selling_technology_backend.services;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -78,5 +79,17 @@ public class CartItemService implements ICartItemService {
     @Override
     public List<CartItem> findByUserId(Long userId) throws Exception {
         return cartItemRepository.findByUserId(userId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCartItemByUserIdAndProductId(long userId, long productId) {
+        cartItemRepository.deleteByUserIdAndProductId(userId, productId);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCartItemByUserId(long userId) {
+        cartItemRepository.deleteCartItemByUserId(userId);
     }
 }

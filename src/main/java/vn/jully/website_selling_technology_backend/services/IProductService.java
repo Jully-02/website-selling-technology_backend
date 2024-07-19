@@ -29,4 +29,6 @@ public interface IProductService{
             Long productId,
             ProductImageDTO productImageDTO
     ) throws DataNotFoundException, InvalidParamException;
+
+    List<ProductResponse> getProductsByIds (List<Long> productIds);
 }

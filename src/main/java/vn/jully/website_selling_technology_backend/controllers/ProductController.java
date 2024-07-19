@@ -4,6 +4,8 @@ import com.github.javafaker.Faker;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +39,7 @@ import java.util.*;
 @RequestMapping("${api.prefix}/products")
 @RequiredArgsConstructor
 public class ProductController {
+    private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
     private final IProductService productService;
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
@@ -172,6 +175,7 @@ public class ProductController {
                 page, limit,
 //                Sort.by("createdAt").descending());
                 sort);
+        logger.info(String.format("keyword = %s, category_id = %d, page = %d, limit = %d", keyword, 1, page, limit));
         Page<ProductResponse> productPage;
         List<Long> brandList = null;
         if (!brandIds.equals("")) {
@@ -271,5 +275,22 @@ public class ProductController {
             }
         }
         return ResponseEntity.ok("Fake Products insert successfully");
+    }
+
+    @GetMapping("/get-products")
+    public  ResponseEntity<ProductListResponse> getProductsByIds (
+            @RequestParam(defaultValue = "", name = "product-ids") String productIds
+    ) {
+        List<Long> productIdList = null;
+        if (!productIds.equals("")) {
+            productIdList = Arrays.stream(productIds.split(","))
+                    .map(Long::parseLong)
+                    .toList();
+            if (productIdList.isEmpty()) {
+                productIdList = null;
+            }
+        }
+        List<ProductResponse> products = productService.getProductsByIds(productIdList);
+        return ResponseEntity.ok(ProductListResponse.builder().productResponses(products).build());
     }
 }

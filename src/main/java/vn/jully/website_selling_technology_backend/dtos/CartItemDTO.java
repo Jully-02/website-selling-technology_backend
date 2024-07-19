@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class CartItemDTO {
-
     @Min(value = 1, message = "User's ID must be > 0")
     @JsonProperty("user_id")
     private long userId;

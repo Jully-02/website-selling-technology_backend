@@ -10,16 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CartItemResponse {
-    @JsonProperty("id")
-    private long id;
-
+public class FavoriteProductResponse {
     @JsonProperty("user_id")
     private long userId;
 
     @JsonProperty("product_id")
     private long productId;
-
-    @JsonProperty("quantity")
-    private int quantity;
 }

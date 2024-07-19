@@ -29,5 +29,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("keyword") String keyword,
             Pageable pageable);
 
-
+    @Query("SELECT p FROM Product p WHERE p.id IN :productIds")
+    List<Product> getProductsByIds (@Param("productIds") List<Long> productIds);
 }

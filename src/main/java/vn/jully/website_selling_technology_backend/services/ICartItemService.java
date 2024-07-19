@@ -18,4 +18,8 @@ public interface ICartItemService {
     void deleteCartItem (long id);
 
     List<CartItem> findByUserId (Long userId) throws Exception;
+
+    void deleteCartItemByUserIdAndProductId (long userId, long productId);
+
+    void deleteCartItemByUserId (long userId);
 }
