@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vn.jully.website_selling_technology_backend.components.JwtTokenUtils;
 import vn.jully.website_selling_technology_backend.dtos.UserDTO;
+import vn.jully.website_selling_technology_backend.dtos.UserUpdateDTO;
 import vn.jully.website_selling_technology_backend.entities.Role;
 import vn.jully.website_selling_technology_backend.entities.User;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
@@ -25,7 +26,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements IUserService{
+public class UserService implements IUserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -163,5 +164,29 @@ public class UserService implements IUserService{
         } else {
             throw new Exception("User not found");
         }
+    }
+
+    @Override
+    public List<UserResponse> getUsers() {
+        List<User> users = userRepository.findAll();
+
+        return users.stream()
+                .map(user -> {
+                    return modelMapper.map(user, UserResponse.class);
+                }).toList();
+    }
+
+    @Override
+    public UserResponse updateUser(Long id, UserUpdateDTO userDTO) throws Exception {
+        User userExisting = userRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException(("Cannot find User with ID = " + id)));
+        userExisting.setFirstName(userDTO.getFirstName());
+        userExisting.setLastName(userDTO.getLastName());
+        userExisting.setAddress(userDTO.getAddress());
+        userExisting.setPhoneNumber(userDTO.getPhoneNumber());
+
+        userRepository.save(userExisting);
+
+        return modelMapper.map(userExisting, UserResponse.class);
     }
 }

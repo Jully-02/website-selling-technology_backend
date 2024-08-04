@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import vn.jully.website_selling_technology_backend.dtos.ProductDTO;
 import vn.jully.website_selling_technology_backend.dtos.ProductImageDTO;
 import vn.jully.website_selling_technology_backend.entities.Brand;
@@ -17,9 +18,12 @@ import vn.jully.website_selling_technology_backend.repositories.BrandRepository;
 import vn.jully.website_selling_technology_backend.repositories.CategoryRepository;
 import vn.jully.website_selling_technology_backend.repositories.ProductImageRepository;
 import vn.jully.website_selling_technology_backend.repositories.ProductRepository;
+import vn.jully.website_selling_technology_backend.responses.CloudinaryResponse;
 import vn.jully.website_selling_technology_backend.responses.ProductResponse;
+import vn.jully.website_selling_technology_backend.utils.FileUploadUtil;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -29,6 +33,7 @@ public class ProductService implements IProductService {
     private final ProductRepository productRepository;
     private final BrandRepository brandRepository;
     private final ProductImageRepository productImageRepository;
+    private final IFileUploadService fileUploadService;
     @Override
     @Transactional
     public Product insertProduct(ProductDTO productDTO) throws DataNotFoundException {
@@ -102,8 +107,8 @@ public class ProductService implements IProductService {
             existingProduct.setDescription(productDTO.getDescription());
             existingProduct.setDiscount(productDTO.getDiscount());
             existingProduct.setAverageRate(productDTO.getAverageRate());
-            existingProduct.setBrand(existingBrand);
-            existingProduct.setCategoryList(categoryList);
+//            existingProduct.setBrand(existingBrand);
+//            existingProduct.setCategoryList(categoryList);
             return productRepository.save(existingProduct);
         }
         return null;
@@ -140,7 +145,18 @@ public class ProductService implements IProductService {
         if (size >= ProductImage.MAXIMUM_IMAGES_PER_PRODUCT) {
             throw new InvalidParamException("Number of images must be <= " + ProductImage.MAXIMUM_IMAGES_PER_PRODUCT);
         }
+        if (Objects.equals(existingProduct.getThumbnail(), "") || existingProduct.getThumbnail() == null) {
+            existingProduct.setThumbnail(productImageDTO.getImageUrl());
+        }
+        productRepository.save(existingProduct);
         return productImageRepository.save(newProductImage);
+    }
+
+    public CloudinaryResponse uploadImage (MultipartFile file) throws Exception {
+        FileUploadUtil.assertAllowed(file, FileUploadUtil.IMAGE_PATTERN);
+        String fileName = FileUploadUtil.getFileName(file.getOriginalFilename());
+        CloudinaryResponse response = fileUploadService.uploadFile(file, fileName);
+        return response;
     }
 
     @Override
@@ -148,4 +164,5 @@ public class ProductService implements IProductService {
         List<Product> products = productRepository.getProductsByIds(productIds);
         return products.stream().map(ProductResponse::convertToProductResponse).toList();
     }
+
 }

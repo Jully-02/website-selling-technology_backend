@@ -16,6 +16,8 @@ import java.util.List;
 //@Data
 @Getter
 @Setter
+// Event-driven approach with Spring Data JPA
+@EntityListeners(ProductListener.class)
 public class Product extends BaseEntity{
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)

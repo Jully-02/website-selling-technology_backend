@@ -43,11 +43,13 @@ public class OrderDetailController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<?> getOrderDetail (@PathVariable("id") Long id) throws DataNotFoundException {
         return ResponseEntity.ok(orderDetailService.getOrderDetail(id));
     }
 
     @GetMapping("/order/{order_id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<?> findByOrderId (@PathVariable("order_id") Long orderId) {
         return ResponseEntity.ok(orderDetailService.findByOrderId(orderId));
     }

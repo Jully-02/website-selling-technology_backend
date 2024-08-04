@@ -2,6 +2,7 @@ package vn.jully.website_selling_technology_backend.configs;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -32,7 +33,6 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(requests -> {
                        requests
@@ -113,14 +113,20 @@ public class WebSecurityConfig {
                                        String.format("%s/orders/**", apiPrefix)).permitAll()
 
                                .requestMatchers(GET,
-                                       String.format("%s/order_details/**", apiPrefix)).permitAll()
+                                       String.format("%s/orders/user/**", apiPrefix)).permitAll()
 
+                               .requestMatchers(GET,
+                                       String.format("%s/feedbacks/product/**", apiPrefix)).permitAll()
+
+                               .requestMatchers(GET,
+                                       String.format("%s/actuator/**", apiPrefix)).permitAll()
                                .anyRequest()
                                .authenticated();
 
 
                 })
                 .csrf(AbstractHttpConfigurer::disable);
+        http.securityMatcher(String.valueOf(EndpointRequest.toAnyEndpoint()));
         http.cors(new Customizer<CorsConfigurer<HttpSecurity>>() {
             @Override
             public void customize(CorsConfigurer<HttpSecurity> httpSecurityCorsConfigurer) {

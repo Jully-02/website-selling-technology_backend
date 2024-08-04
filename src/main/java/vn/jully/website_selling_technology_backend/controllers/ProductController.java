@@ -1,9 +1,9 @@
 package vn.jully.website_selling_technology_backend.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.javafaker.Faker;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.UrlResource;
@@ -24,8 +24,11 @@ import vn.jully.website_selling_technology_backend.dtos.ProductImageDTO;
 import vn.jully.website_selling_technology_backend.entities.Product;
 import vn.jully.website_selling_technology_backend.entities.ProductImage;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
+import vn.jully.website_selling_technology_backend.responses.CloudinaryResponse;
 import vn.jully.website_selling_technology_backend.responses.ProductListResponse;
 import vn.jully.website_selling_technology_backend.responses.ProductResponse;
+import vn.jully.website_selling_technology_backend.services.IFileUploadService;
+import vn.jully.website_selling_technology_backend.services.IProductRedisService;
 import vn.jully.website_selling_technology_backend.services.IProductService;
 
 import java.io.IOException;
@@ -41,6 +44,8 @@ import java.util.*;
 public class ProductController {
     private static final Logger logger = LoggerFactory.getLogger(ProductController.class);
     private final IProductService productService;
+    private final IProductRedisService productRedisService;
+    private final IFileUploadService uploadService;
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> insertProduct(
@@ -91,14 +96,15 @@ public class ProductController {
                             .body("File must be an image");
                 }
                 // Save file and update thumbnail in DTO
-                String fileName = storeFile(file);
-                String name = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+//                String fileName = storeFile(file);
+//                String name = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+                CloudinaryResponse cloudinaryResponse = productService.uploadImage(file);
                 ProductImage productImage = productService.insertProductImage(
                         existingProduct.getId(),
                         ProductImageDTO.builder()
                                 .productId(existingProduct.getId())
-                                .imageUrl(fileName)
-                                .imageName(name)
+                                .imageUrl(cloudinaryResponse.getUrl())
+                                .imageName(cloudinaryResponse.getPublicId())
                                 .build()
                 );
                 productImages.add(productImage);
@@ -162,7 +168,7 @@ public class ProductController {
             @RequestParam(defaultValue = "default", name ="sort") String sortOption,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "16") int limit
-    ) {
+    ) throws JsonProcessingException {
         Sort sort = switch (sortOption) {
             case "popularity" -> Sort.by("id").descending();
             case "latest" -> Sort.by("createdAt").descending();
@@ -175,8 +181,7 @@ public class ProductController {
                 page, limit,
 //                Sort.by("createdAt").descending());
                 sort);
-        logger.info(String.format("keyword = %s, category_id = %d, page = %d, limit = %d", keyword, 1, page, limit));
-        Page<ProductResponse> productPage;
+        Page<ProductResponse> productPage = null;
         List<Long> brandList = null;
         if (!brandIds.equals("")) {
             brandList = Arrays.stream(brandIds.split(","))
@@ -196,10 +201,27 @@ public class ProductController {
                 categoryList = null;
             }
         }
-        productPage = productService.searchProducts(categoryList, categoryList == null ? 0 : categoryList.size(), brandList, keyword, pageRequest);
-        // Get total pages
-        int totalPages = productPage.getTotalPages();
-        List<ProductResponse> productResponses = productPage.getContent();
+//        productPage = productRedisService
+//                .getAllProducts(categoryIds, brandIds, keyword, pageRequest);
+        int totalPages = 0;
+        List<ProductResponse> productResponses = null;
+        if (productPage == null) {
+            productPage = productService.searchProducts(categoryList, categoryList == null ? 0 : categoryList.size(), brandList, keyword, pageRequest);
+            // Get total pages
+            totalPages = productPage.getTotalPages();
+            productResponses = productPage.getContent();
+            productRedisService.saveAllProducts(
+                    productResponses,
+                    categoryIds,
+                    brandIds,
+                    keyword,
+                    pageRequest
+            );
+        }
+        else {
+            productResponses = productPage.getContent();
+            totalPages = productPage.getTotalPages();
+        }
         return ResponseEntity.ok(ProductListResponse.builder()
                         .productResponses(productResponses)
                         .totalPages(totalPages)

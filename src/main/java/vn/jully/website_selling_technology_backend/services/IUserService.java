@@ -1,9 +1,12 @@
 package vn.jully.website_selling_technology_backend.services;
 
 import vn.jully.website_selling_technology_backend.dtos.UserDTO;
+import vn.jully.website_selling_technology_backend.dtos.UserUpdateDTO;
 import vn.jully.website_selling_technology_backend.entities.User;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
 import vn.jully.website_selling_technology_backend.responses.UserResponse;
+
+import java.util.List;
 
 public interface IUserService {
     User insertUser (UserDTO userDTO) throws Exception;
@@ -12,7 +15,11 @@ public interface IUserService {
 
     boolean emailUnique (String email);
 
-    public int activeAccount (String email, String activeCode) throws DataNotFoundException;
+    int activeAccount (String email, String activeCode) throws DataNotFoundException;
 
-    public UserResponse getUserDetailsFromToken(String token) throws Exception;
+    UserResponse getUserDetailsFromToken(String token) throws Exception;
+
+    List<UserResponse> getUsers ();
+
+    UserResponse updateUser (Long id, UserUpdateDTO userDTO) throws Exception;
 }

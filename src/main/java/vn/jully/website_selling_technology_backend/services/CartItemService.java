@@ -63,8 +63,8 @@ public class CartItemService implements ICartItemService {
         Product existingProduct = productRepository.findById(cartItemDTO.getProductId())
                 .orElseThrow(() -> new DataNotFoundException("Cannot find Product with ID = " + cartItemDTO.getProductId()));
 
-        modelMapper.map(cartItemDTO, existingCartItem);
-
+//        modelMapper.map(cartItemDTO, existingCartItem);
+        existingCartItem.setQuantity(cartItemDTO.getQuantity());
         existingCartItem.setUser(existingUser);
         existingCartItem.setProduct(existingProduct);
 

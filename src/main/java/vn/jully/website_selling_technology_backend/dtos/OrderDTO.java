@@ -80,6 +80,10 @@ public class OrderDTO {
     @Min(value = 1, message = "Shipping method ID must be > 0")
     private Long shippingMethodId;
 
+    @JsonProperty("tracking_number")
+    @NotNull(message = "Tracking number is required")
+    private int trackingNumber;
+
     @JsonProperty("cart_items")
     private List<CartItemDTO> cartItems;
 }

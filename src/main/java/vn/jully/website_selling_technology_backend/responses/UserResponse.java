@@ -15,6 +15,10 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class UserResponse {
+
+    @JsonProperty("id")
+    private long id;
+
     @JsonProperty("first_name")
     private String firstName;
 

@@ -3,11 +3,13 @@ package vn.jully.website_selling_technology_backend.controllers;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import vn.jully.website_selling_technology_backend.dtos.UserDTO;
 import vn.jully.website_selling_technology_backend.dtos.UserLoginDTO;
+import vn.jully.website_selling_technology_backend.dtos.UserUpdateDTO;
 import vn.jully.website_selling_technology_backend.entities.User;
 import vn.jully.website_selling_technology_backend.responses.*;
 import vn.jully.website_selling_technology_backend.services.IUserService;
@@ -87,6 +89,12 @@ public class UserController {
         }
     }
 
+    @GetMapping("")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<UserResponse>> getUsers () {
+        return ResponseEntity.ok(userService.getUsers());
+    }
+
     @GetMapping("/email-unique")
     public ResponseEntity<EmailUniqueResponse> emailUnique (@RequestParam("email") String email) {
         boolean isUnique = userService.emailUnique(email);
@@ -154,6 +162,16 @@ public class UserController {
 
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    public ResponseEntity<?> updateUser (@PathVariable("id") Long userId, @Valid @RequestBody UserUpdateDTO userDTO) {
+        try {
+            return ResponseEntity.ok(userService.updateUser(userId, userDTO));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

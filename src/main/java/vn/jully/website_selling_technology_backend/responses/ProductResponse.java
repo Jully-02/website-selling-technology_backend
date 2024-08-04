@@ -33,12 +33,17 @@ public class ProductResponse extends BaseResponse{
     private float averageRate;
 
     @JsonProperty("brand_id")
-
     private Long brandId;
+
+    @JsonProperty("brand_name")
+    private String brandName;
 
     @JsonProperty("categories")
 //    private List<Long> categoryIds;
     private List<Category> categories;
+
+    @JsonProperty("category_names")
+    private List<String> categoryNames;
 
     @JsonProperty("specification_id")
     private Long specificationId;
@@ -50,6 +55,8 @@ public class ProductResponse extends BaseResponse{
 //        List<Long> categoryIds = product.getCategoryList().stream()
 //                .map(Category::getId)
 //                .toList();
+        List<String> categoryNames = product.getCategoryList().stream()
+                .map(Category::getName).toList();
         ProductResponse productResponse = ProductResponse.builder()
                 .id(product.getId())
                 .title(product.getTitle())
@@ -60,6 +67,8 @@ public class ProductResponse extends BaseResponse{
                 .averageRate(product.getAverageRate())
                 .brandId(product.getBrand().getId())
                 .productImages(product.getProductImageList())
+                .brandName(product.getBrand().getName())
+                .categoryNames(categoryNames)
 //                .specificationId(product.getSpecification().getId())
                 .categories(product.getCategoryList())
                 .build();

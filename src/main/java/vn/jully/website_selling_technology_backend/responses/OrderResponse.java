@@ -54,14 +54,23 @@ public class OrderResponse extends BaseResponse{
     @JsonProperty("shipping_method_id")
     private Long shippingMethodId;
 
+    @JsonProperty("shipping_address")
+    private String shippingAddress;
+
+    @JsonProperty("shipping_method_name")
+    private String shippingMethodName;
+
     @JsonProperty("shipping_date")
-    private LocalDate shippingDate;
+    private java.util.Date shippingDate;
 
     @JsonProperty("tracking_number")
-    private String trackingNumber;
+    private int trackingNumber;
 
     @JsonProperty("payment_method_id")
     private Long paymentMethodId;
+
+    @JsonProperty("payment_method_name")
+    private String paymentMethodName;
 
     @JsonProperty("is_active")
     private boolean isActive;

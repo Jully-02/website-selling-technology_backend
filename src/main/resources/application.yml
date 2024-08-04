@@ -2,9 +2,10 @@ spring:
   application:
     name: 'website-selling-technology_backend'
   datasource:
-    url: 'jdbc:mysql://localhost:3306/website_selling_technology'
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/website_selling_technology?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password:
+    password: ${MYSQL_ROOT_PASSWORD:Gizmos@230523}
   servlet:
     multipart:
       max-file-size: 10MB
@@ -28,13 +29,16 @@ spring:
           auth: true
           starttls:
             enable: true
+  redis:
+    host: ${REDIS_HOST:localhost} # Default to 'localhost' if not provided
+    port: ${REDIS_PORT:6379}      # Default to 6379 if not provided
   messages:
     basename: i18n/messages
     encoding: UTF-8
     default-locale: en
 
 api:
-  prefix: api/v1
+  prefix: /api/v1
 jwt:
   expiration: 2592000 # 30 days = 30 * 24 * 60 * 60
   secretKey: QKtxW32nmnY/2anIVO3gKjkmYBnG8KE+5sOCiaubtLY=
@@ -49,4 +53,19 @@ payment:
     command: pay
     orderType: other
 
-logging.level.org.springframework.security: DEBUG
+logging:
+  level:
+    org:
+      springframework.security: DEBUG
+
+# heath check
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      base-path: /api/v1/actuator
+      exposure:
+        # include: "health"
+        include: "health, info"

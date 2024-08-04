@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import vn.jully.website_selling_technology_backend.dtos.OrderDTO;
+import vn.jully.website_selling_technology_backend.dtos.OrderUpdateDTO;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
 import vn.jully.website_selling_technology_backend.responses.OrderResponse;
 import vn.jully.website_selling_technology_backend.services.IOrderService;
@@ -20,7 +21,7 @@ import java.util.List;
 public class OrderController {
     private final IOrderService orderService;
     @PostMapping("")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<?> insertOrder (
             @RequestBody @Valid OrderDTO orderDTO,
             BindingResult result
@@ -41,16 +42,24 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<?> getOrder (@PathVariable("id") Long id) throws DataNotFoundException {
         return ResponseEntity.ok(orderService.getOrder(id));
     }
 
+    @GetMapping("")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getOrders () {
+        return ResponseEntity.ok(orderService.getOrders());
+    }
+
     @GetMapping("/user/{user_id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<?> findByUserId (
             @Valid @PathVariable("user_id") Long userId
     ) {
         try {
-            return ResponseEntity.ok(orderService.findByUserId(userId));
+            return ResponseEntity.ok( orderService.findByUserId(userId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -60,7 +69,7 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateOrder (
         @Valid @PathVariable Long id,
-        @Valid @RequestBody OrderDTO orderDTO,
+        @Valid @RequestBody OrderUpdateDTO orderDTO,
         BindingResult result
     ) {
         try {
