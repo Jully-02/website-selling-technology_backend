@@ -75,13 +75,26 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/banners**", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
+                Pair.of(String.format("%s/users/refresh-token", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/email-unique", apiPrefix), "GET"),
                 Pair.of(String.format("%s/users/active-account", apiPrefix), "GET"),
                 Pair.of(String.format("%s/payment-methods**", apiPrefix), "GET"),
                 Pair.of(String.format("%s/payments/vn-pay-callback", apiPrefix), "GET"),
                 Pair.of(String.format("%s/shipping-methods**", apiPrefix), "GET"),
                 Pair.of(String.format("%s/feedbacks/product/**", apiPrefix), "GET"),
-                Pair.of(String.format("%s/actuator/health", apiPrefix), "GET")
+                Pair.of(String.format("%s/healthcheck/health", apiPrefix), "GET"),
+                Pair.of(String.format("%s/actuator/**", apiPrefix), "GET"),
+
+                // Swagger
+                Pair.of("/api-docs","GET"),
+                Pair.of("/api-docs/**","GET"),
+                Pair.of("/swagger-resources","GET"),
+                Pair.of("/swagger-resources/**","GET"),
+                Pair.of("/configuration/ui","GET"),
+                Pair.of("/configuration/security","GET"),
+                Pair.of("/swagger-ui/**","GET"),
+                Pair.of("/swagger-ui.html", "GET"),
+                Pair.of("/swagger-ui/index.html", "GET")
         );
 
         String requestPath = request.getServletPath();

@@ -5,13 +5,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import vn.jully.website_selling_technology_backend.entities.Category;
-import vn.jully.website_selling_technology_backend.responses.CategoryResponse;
-
-import java.util.List;
+import vn.jully.website_selling_technology_backend.responses.categogy.CategoryResponse;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    @Query("SELECT new vn.jully.website_selling_technology_backend.responses.CategoryResponse(c.id, c.name, COUNT(p)) " +
+    @Query("SELECT new vn.jully.website_selling_technology_backend.responses.categogy.CategoryResponse(c.id, c.name, COUNT(p)) " +
             "FROM Category c " +
             "LEFT JOIN c.productList p " +
             "GROUP BY c.id, c.name")

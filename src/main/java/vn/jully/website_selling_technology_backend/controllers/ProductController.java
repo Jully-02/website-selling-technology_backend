@@ -19,17 +19,20 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import vn.jully.website_selling_technology_backend.components.LocalizationUtils;
 import vn.jully.website_selling_technology_backend.dtos.ProductDTO;
 import vn.jully.website_selling_technology_backend.dtos.ProductImageDTO;
 import vn.jully.website_selling_technology_backend.entities.Product;
 import vn.jully.website_selling_technology_backend.entities.ProductImage;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
-import vn.jully.website_selling_technology_backend.responses.CloudinaryResponse;
-import vn.jully.website_selling_technology_backend.responses.ProductListResponse;
-import vn.jully.website_selling_technology_backend.responses.ProductResponse;
-import vn.jully.website_selling_technology_backend.services.IFileUploadService;
-import vn.jully.website_selling_technology_backend.services.IProductRedisService;
-import vn.jully.website_selling_technology_backend.services.IProductService;
+import vn.jully.website_selling_technology_backend.responses.Response;
+import vn.jully.website_selling_technology_backend.responses.cloudinary.CloudinaryResponse;
+import vn.jully.website_selling_technology_backend.responses.product.ProductListResponse;
+import vn.jully.website_selling_technology_backend.responses.product.ProductResponse;
+import vn.jully.website_selling_technology_backend.services.file_upload.IFileUploadService;
+import vn.jully.website_selling_technology_backend.services.product.IProductRedisService;
+import vn.jully.website_selling_technology_backend.services.product.IProductService;
+import vn.jully.website_selling_technology_backend.utils.MessageKey;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,30 +49,39 @@ public class ProductController {
     private final IProductService productService;
     private final IProductRedisService productRedisService;
     private final IFileUploadService uploadService;
+    private final LocalizationUtils localizationUtils;
+
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> insertProduct(
+    public ResponseEntity<Response> insertProduct(
             @Valid @RequestBody ProductDTO productDTO,
             BindingResult result
-    ) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            Product newProduct = productService.insertProduct(productDTO);
-            return ResponseEntity.ok(newProduct);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    ) throws DataNotFoundException {
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(
+                    Response.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.INVALID_ERROR, errorMessages.toString()))
+                            .status(HttpStatus.BAD_REQUEST)
+                            .build()
+            );
         }
+        Product newProduct = productService.insertProduct(productDTO);
+        return ResponseEntity.ok(
+                Response.builder()
+                        .status(HttpStatus.CREATED)
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.INSERT_SUCCESSFULLY))
+                        .data(newProduct)
+                        .build()
+        );
     }
 
     @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> uploadImages (
+    public ResponseEntity<?> uploadImages(
             @PathVariable("id") Long id,
             @ModelAttribute("files") List<MultipartFile> files
     ) {
@@ -110,7 +122,7 @@ public class ProductController {
                 productImages.add(productImage);
             }
             return ResponseEntity.ok(productImages);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -135,13 +147,13 @@ public class ProductController {
         return uniqueFileName;
     }
 
-    private boolean isImageFile (MultipartFile file) {
+    private boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
     }
 
     @GetMapping("/images/{imageName}")
-    public ResponseEntity<?> viewImage (@PathVariable String imageName) {
+    public ResponseEntity<?> viewImage(@PathVariable String imageName) {
         try {
             Path imagePath = Paths.get("uploads/" + imageName);
             UrlResource resource = new UrlResource(imagePath.toUri());
@@ -161,11 +173,11 @@ public class ProductController {
     }
 
     @GetMapping("")
-    public ResponseEntity<ProductListResponse> getAllProducts(
+    public ResponseEntity<Response> getAllProducts(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "", name = "category-ids") String categoryIds,
             @RequestParam(defaultValue = "", name = "brand-ids") String brandIds,
-            @RequestParam(defaultValue = "default", name ="sort") String sortOption,
+            @RequestParam(defaultValue = "default", name = "sort") String sortOption,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "16") int limit
     ) throws JsonProcessingException {
@@ -217,58 +229,79 @@ public class ProductController {
                     keyword,
                     pageRequest
             );
-        }
-        else {
+        } else {
             productResponses = productPage.getContent();
             totalPages = productPage.getTotalPages();
         }
-        return ResponseEntity.ok(ProductListResponse.builder()
-                        .productResponses(productResponses)
-                        .totalPages(totalPages)
-                        .build());
+        return ResponseEntity.ok(
+                Response.builder()
+                        .data(ProductListResponse.builder()
+                                .productResponses(productResponses)
+                                .totalPages(totalPages)
+                                .build())
+                        .message("Get all products successfully")
+                        .status(HttpStatus.OK)
+                        .build()
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProductById(@PathVariable("id") Long productId) throws DataNotFoundException {
+    public ResponseEntity<Response> getProductById(@PathVariable("id") Long productId) throws DataNotFoundException {
         Product product = productService.getProductById(productId);
-        return ResponseEntity.ok(ProductResponse.convertToProductResponse(product));
+        ProductResponse response = ProductResponse.convertToProductResponse(product);
+        return ResponseEntity.ok(
+                Response.builder()
+                        .status(HttpStatus.OK)
+                        .data(response)
+                        .message("Get product successfully")
+                        .build()
+        );
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
-        try {
+    public ResponseEntity<Response> deleteProduct(@PathVariable Long id) throws DataNotFoundException {
             productService.deleteProduct(id);
-            return  ResponseEntity.ok("Deleted product successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+            return ResponseEntity.ok(
+                    Response.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+                            .status(HttpStatus.OK)
+                            .build()
+            );
+
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateProduct (
+    public ResponseEntity<Response> updateProduct(
             @PathVariable("id") Long id,
             @Valid @RequestBody ProductDTO productDTO,
             BindingResult result
-    ) {
-        try {
+    ) throws DataNotFoundException {
             if (result.hasErrors()) {
                 List<String> errorMessages = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
+                return ResponseEntity.badRequest().body(
+                        Response.builder()
+                                .status(HttpStatus.BAD_REQUEST)
+                                .message(localizationUtils.getLocalizedMessage(MessageKey.INVALID_ERROR, errorMessages.toString()))
+                                .build()
+                );
             }
             Product updatedProduct = productService.updateProduct(id, productDTO);
-            return ResponseEntity.ok(updatedProduct);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+            return ResponseEntity.ok(
+                    Response.builder()
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
+                            .data(updatedProduct)
+                            .status(HttpStatus.OK)
+                            .build()
+            );
     }
 
-//    @PostMapping("/generateFakeProducts")
-    private ResponseEntity<String> generateFakeProducts () {
+    //    @PostMapping("/generateFakeProducts")
+    private ResponseEntity<String> generateFakeProducts() {
         Faker faker = new Faker();
         for (long i = 0; i < 1_000_000; i++) {
             String title = faker.commerce().productName();
@@ -276,7 +309,7 @@ public class ProductController {
                 continue;
             }
             List<Long> categoryIds = new ArrayList<>();
-            for (int j = 0; j < faker.number().numberBetween(1,5); j++) {
+            for (int j = 0; j < faker.number().numberBetween(1, 5); j++) {
                 categoryIds.add((long) faker.number().numberBetween(1, 29));
             }
             ProductDTO productDTO = ProductDTO
@@ -286,7 +319,7 @@ public class ProductController {
                     .description(faker.lorem().sentence())
                     .discount(faker.number().numberBetween(0, 10))
                     .averageRate(faker.number().numberBetween(0, 5))
-                    .brandId((long)faker.number().numberBetween(1,5))
+                    .brandId((long) faker.number().numberBetween(1, 5))
                     .categoryIds(categoryIds)
                     .thumbnail("")
                     .build();
@@ -300,7 +333,7 @@ public class ProductController {
     }
 
     @GetMapping("/get-products")
-    public  ResponseEntity<ProductListResponse> getProductsByIds (
+    public ResponseEntity<Response> getProductsByIds(
             @RequestParam(defaultValue = "", name = "product-ids") String productIds
     ) {
         List<Long> productIdList = null;
@@ -313,6 +346,12 @@ public class ProductController {
             }
         }
         List<ProductResponse> products = productService.getProductsByIds(productIdList);
-        return ResponseEntity.ok(ProductListResponse.builder().productResponses(products).build());
+        return ResponseEntity.ok(
+                Response.builder()
+                        .data(ProductListResponse.builder().productResponses(products).build())
+                        .message("Get products successfully")
+                        .status(HttpStatus.OK)
+                        .build()
+        );
     }
 }

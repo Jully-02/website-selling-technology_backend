@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import vn.jully.website_selling_technology_backend.responses.PaymentResponse;
-import vn.jully.website_selling_technology_backend.services.PaymentService;
+import vn.jully.website_selling_technology_backend.responses.payment.PaymentResponse;
+import vn.jully.website_selling_technology_backend.services.payment.PaymentService;
 
 import java.io.IOException;
 

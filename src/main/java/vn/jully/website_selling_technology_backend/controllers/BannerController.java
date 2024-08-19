@@ -15,9 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import vn.jully.website_selling_technology_backend.components.LocalizationUtils;
 import vn.jully.website_selling_technology_backend.dtos.BannerDTO;
 import vn.jully.website_selling_technology_backend.entities.Banner;
-import vn.jully.website_selling_technology_backend.responses.BannerResponse;
-import vn.jully.website_selling_technology_backend.services.BannerService;
-import vn.jully.website_selling_technology_backend.services.IBannerService;
+import vn.jully.website_selling_technology_backend.responses.Response;
+import vn.jully.website_selling_technology_backend.services.banner.IBannerService;
 import vn.jully.website_selling_technology_backend.utils.MessageKey;
 
 import java.io.IOException;
@@ -38,44 +37,37 @@ public class BannerController {
 
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<BannerResponse> insertBanner (
+    public ResponseEntity<Response> insertBanner(
             @Valid @RequestBody BannerDTO bannerDTO,
             BindingResult result
-    ) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(
-                        BannerResponse
-                                .builder()
-                                .message(localizationUtils.getLocalizedMessage(MessageKey.INVALID_ERROR,errorMessages.toString()))
-                                .build()
-                );
-            }
-            Banner banner = bannerService.insertBanner(bannerDTO);
-            return ResponseEntity.ok(
-                    BannerResponse
-                            .builder()
-                            .message(localizationUtils.getLocalizedMessage(MessageKey.INSERT_SUCCESSFULLY))
-                            .banner(banner)
-                            .build()
-            );
-        } catch (Exception e) {
+    ) throws Exception {
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
             return ResponseEntity.badRequest().body(
-                    BannerResponse
+                    Response
                             .builder()
-                            .message(localizationUtils.getLocalizedMessage(MessageKey.INSERT_FAILED, e.getMessage()))
+                            .status(HttpStatus.BAD_REQUEST)
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.INVALID_ERROR, errorMessages.toString()))
                             .build()
             );
         }
+        Banner banner = bannerService.insertBanner(bannerDTO);
+        return ResponseEntity.ok(
+                Response
+                        .builder()
+                        .status(HttpStatus.CREATED)
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.INSERT_SUCCESSFULLY))
+                        .data(banner)
+                        .build()
+        );
     }
 
     @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> uploadImages (
+    public ResponseEntity<?> uploadImages(
             @PathVariable("id") Long id,
             @ModelAttribute("file") MultipartFile file
     ) throws Exception {
@@ -117,13 +109,13 @@ public class BannerController {
         return uniqueFileName;
     }
 
-    private boolean isImageFile (MultipartFile file) {
+    private boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
     }
 
     @GetMapping("/images/{imageName}")
-    public ResponseEntity<?> viewImage (@PathVariable String imageName) {
+    public ResponseEntity<?> viewImage(@PathVariable String imageName) {
         try {
             Path imagePath = Paths.get("uploads/banners/" + imageName);
             UrlResource resource = new UrlResource(imagePath.toUri());
@@ -143,47 +135,69 @@ public class BannerController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Banner>> getAllBanners () {
-        return ResponseEntity.ok(bannerService.getAllBanners());
+    public ResponseEntity<Response> getAllBanners() {
+        List<Banner> banners = bannerService.getAllBanners();
+        return ResponseEntity.ok(
+                Response
+                        .builder()
+                        .data(banners)
+                        .message("Get all banners successfully")
+                        .status(HttpStatus.OK)
+                        .build()
+        );
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<String> deleteBanner (@PathVariable Long id) {
-        try {
-            bannerService.deleteBanner(id);
-            return ResponseEntity.ok("Deleted banner successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<Response> deleteBanner(@PathVariable Long id) throws Exception {
+        bannerService.deleteBanner(id);
+        return ResponseEntity.ok(
+                Response.builder()
+                        .status(HttpStatus.OK)
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.DELETE_SUCCESSFULLY))
+                        .build()
+        );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getBannerById (@PathVariable("id") Long id) throws Exception {
+    public ResponseEntity<Response> getBannerById(@PathVariable("id") Long id) throws Exception {
         Banner banner = bannerService.getBannerById(id);
-        return ResponseEntity.ok(banner);
+        return ResponseEntity.ok(
+                Response.builder()
+                        .data(banner)
+                        .status(HttpStatus.OK)
+                        .message("Get banner successfully")
+                        .build()
+        );
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> updateBanner (
+    public ResponseEntity<Response> updateBanner(
             @PathVariable("id") Long id,
             @Valid @RequestBody BannerDTO bannerDTO,
             BindingResult result
-    ) {
-        try {
-            if (result.hasErrors()) {
-                List<String> errorMessages = result.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ResponseEntity.badRequest().body(errorMessages);
-            }
-            Banner updatedBanner = bannerService.updateBanner(id, bannerDTO);
-            return ResponseEntity.ok(updatedBanner);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+    ) throws Exception {
+        if (result.hasErrors()) {
+            List<String> errorMessages = result.getFieldErrors()
+                    .stream()
+                    .map(FieldError::getDefaultMessage)
+                    .toList();
+            return ResponseEntity.badRequest().body(
+                    Response
+                            .builder()
+                            .status(HttpStatus.BAD_REQUEST)
+                            .message(localizationUtils.getLocalizedMessage(MessageKey.INVALID_ERROR, errorMessages.toString()))
+                            .build()
+            );
         }
+        Banner updatedBanner = bannerService.updateBanner(id, bannerDTO);
+        return ResponseEntity.ok(
+                Response.builder()
+                        .status(HttpStatus.OK)
+                        .data(updatedBanner)
+                        .message(localizationUtils.getLocalizedMessage(MessageKey.UPDATE_SUCCESSFULLY))
+                        .build()
+        );
     }
-
 }

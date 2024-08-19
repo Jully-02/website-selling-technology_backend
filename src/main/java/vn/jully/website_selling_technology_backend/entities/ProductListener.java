@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import vn.jully.website_selling_technology_backend.services.IProductRedisService;
+import vn.jully.website_selling_technology_backend.services.product.IProductRedisService;
 
 @AllArgsConstructor
 public class ProductListener {

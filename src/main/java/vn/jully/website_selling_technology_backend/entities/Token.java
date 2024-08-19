@@ -34,10 +34,19 @@ public class Token {
     @Column(name = "expired")
     private boolean expired;
 
+    @Column(name = "refresh_token")
+    private String refreshToken;
+
+    @Column(name = "refresh_expiration_date")
+    private LocalDateTime refreshExpirationDate;
+
     @ManyToOne(cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.DETACH, CascadeType.REFRESH
     })
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(name = "is_mobile")
+    private boolean isMobile;
 }

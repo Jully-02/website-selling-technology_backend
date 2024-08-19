@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import vn.jully.website_selling_technology_backend.entities.Token;
 import vn.jully.website_selling_technology_backend.entities.User;
+import vn.jully.website_selling_technology_backend.repositories.TokenRepository;
 
 import java.security.InvalidParameterException;
 import java.security.Key;
@@ -23,6 +25,8 @@ import java.util.function.Function;
 @Component
 @RequiredArgsConstructor
 public class JwtTokenUtils {
+
+    private final TokenRepository tokenRepository;
     @Value("${jwt.expiration}")
     private int expiration; // save to an environment variable
 
@@ -86,6 +90,10 @@ public class JwtTokenUtils {
 
     public boolean validateToken (String token, UserDetails userDetails) {
         String email = extractEmail(token);
+        Token existingToken = tokenRepository.findByToken(token);
+        if (existingToken == null || existingToken.isRevoked()) {
+            return false;
+        }
         return (email.equals(userDetails.getUsername()))
                 && !isTokenExpired(token);
     }

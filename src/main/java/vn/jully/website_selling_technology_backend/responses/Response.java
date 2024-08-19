@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -12,13 +13,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Response<T> {
+public class Response {
     @JsonProperty("message")
     private String message;
 
-    @JsonProperty("data")
-    private T data;
+    @JsonProperty("status")
+    private HttpStatus status;
 
-    @JsonProperty("data_list")
-    private List<T> dataList;
+    @JsonProperty("data")
+    private Object data;
 }

@@ -42,4 +42,13 @@ public class UserUpdateDTO {
     private Date dateOfBirth;
 
     private String address;
+
+    @JsonProperty("old_password")
+    private String oldPassword;
+
+    @JsonProperty("new_password")
+    private String newPassword;
+
+    @JsonProperty("retype_new_password")
+    private String retypeNewPassword;
 }
