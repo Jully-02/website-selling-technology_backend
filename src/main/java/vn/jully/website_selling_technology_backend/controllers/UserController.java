@@ -149,9 +149,9 @@ public class UserController {
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<UserListResponse> getUsers (
-            @RequestParam("page") int page,
-            @RequestParam("limit") int limit,
-            @RequestParam("keyword") String keyword
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "16") int limit,
+            @RequestParam(value = "keyword", defaultValue = "") String keyword
     ) {
         PageRequest pageRequest = PageRequest.of(
                 page, limit,

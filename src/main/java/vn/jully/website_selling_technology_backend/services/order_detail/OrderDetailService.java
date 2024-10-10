@@ -94,4 +94,10 @@ public class OrderDetailService implements IOrderDetailService{
     public void deleteOrderDetail(Long id) {
         orderDetailRepository.deleteById(id);
     }
+
+    @Override
+    @Transactional
+    public void deleteOrderDetailByOrderId (Long orderId) {
+        orderDetailRepository.deleteOrderDetailByOrderId(orderId);
+    }
 }

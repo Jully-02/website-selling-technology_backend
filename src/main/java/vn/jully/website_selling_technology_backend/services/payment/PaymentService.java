@@ -13,7 +13,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class PaymentService {
     private final VNPayConfig vnPayConfig;
-    public PaymentResponse createVnPayPayment(long price, String bankCode, HttpServletRequest request) {
+    public PaymentResponse createVnPayPayment(long price, String bankCode, HttpServletRequest request, Long orderId) {
         long amount = price * 100L;
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
@@ -21,6 +21,7 @@ public class PaymentService {
             vnpParamsMap.put("vnp_BankCode", bankCode);
         }
         vnpParamsMap.put("vnp_IpAddr", VNPayUtil.getIpAddress(request));
+        vnpParamsMap.put("vnp_TxnRef", String.valueOf(orderId));
         //build query url
         String queryUrl = VNPayUtil.getPaymentURL(vnpParamsMap, true);
         String hashData = VNPayUtil.getPaymentURL(vnpParamsMap, false);

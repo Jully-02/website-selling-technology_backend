@@ -1,5 +1,7 @@
 package vn.jully.website_selling_technology_backend.services.order;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import vn.jully.website_selling_technology_backend.dtos.OrderDTO;
 import vn.jully.website_selling_technology_backend.dtos.OrderUpdateDTO;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
@@ -12,11 +14,13 @@ public interface IOrderService {
 
     OrderResponse getOrder (Long id) throws DataNotFoundException;
 
-    List<OrderResponse> getOrders ();
+    Page<OrderResponse> getOrders (String keyword, Pageable pageable);
 
     OrderResponse updateOrder (Long id, OrderUpdateDTO orderDTO) throws DataNotFoundException;
 
-    List<OrderResponse> findByUserId (Long userId);
+    Page<OrderResponse> findByUserId (Long userId, Pageable pageable);
 
     void deleteOrder (Long id) throws DataNotFoundException;
+
+    void hardDeleteOrder (Long id);
 }

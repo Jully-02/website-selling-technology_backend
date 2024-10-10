@@ -2,6 +2,9 @@ package vn.jully.website_selling_technology_backend.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,6 +16,7 @@ import vn.jully.website_selling_technology_backend.dtos.OrderDTO;
 import vn.jully.website_selling_technology_backend.dtos.OrderUpdateDTO;
 import vn.jully.website_selling_technology_backend.exceptions.DataNotFoundException;
 import vn.jully.website_selling_technology_backend.responses.Response;
+import vn.jully.website_selling_technology_backend.responses.order.OrderListResponse;
 import vn.jully.website_selling_technology_backend.responses.order.OrderResponse;
 import vn.jully.website_selling_technology_backend.services.order.IOrderService;
 import vn.jully.website_selling_technology_backend.utils.MessageKey;
@@ -68,11 +72,23 @@ public class OrderController {
 
     @GetMapping("")
     @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
-    public ResponseEntity<Response> getOrders () {
-        List<OrderResponse> response = orderService.getOrders();
+    public ResponseEntity<Response> getOrders (
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "16") int limit,
+            @RequestParam(value = "keyword", defaultValue = "") String keyword
+    ) {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("id").ascending()
+        );
+        Page<OrderResponse> orderPages = orderService.getOrders(keyword, pageRequest);
+        int totalPages = orderPages.getTotalPages();
         return ResponseEntity.ok(
                 Response.builder()
-                        .data(response)
+                        .data(OrderListResponse.builder()
+                                .totalPages(totalPages)
+                                .orderResponses(orderPages.getContent())
+                                .build())
                         .message("Get orders successfully")
                         .status(HttpStatus.OK)
                         .build()
@@ -82,12 +98,21 @@ public class OrderController {
     @GetMapping("/user/{user_id}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<Response> findByUserId (
-            @Valid @PathVariable("user_id") Long userId
+            @Valid @PathVariable("user_id") Long userId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "limit", defaultValue = "16") int limit
     ) {
-        List<OrderResponse> responses =  orderService.findByUserId(userId);
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("id").ascending()
+        );
+        Page<OrderResponse> responses =  orderService.findByUserId(userId, pageRequest);
             return ResponseEntity.ok(
                     Response.builder()
-                            .data(responses)
+                            .data(OrderListResponse.builder()
+                                    .totalPages(responses.getTotalPages())
+                                    .orderResponses(responses.getContent())
+                                    .build())
                             .status(HttpStatus.OK)
                             .message("Get orders successfully")
                             .build()

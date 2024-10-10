@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import vn.jully.website_selling_technology_backend.dtos.CartItemDTO;
 import vn.jully.website_selling_technology_backend.dtos.OrderDTO;
@@ -109,9 +111,9 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<OrderResponse> getOrders() {
-        List<Order> orders = orderRepository.findAll();
-        return orders.stream()
+    public Page<OrderResponse> getOrders(String keyword, Pageable pageable) {
+        Page<Order> orders = orderRepository.findAll(keyword, pageable);
+        return orders
                 .map(order -> {
                     OrderResponse orderResponse = modelMapper.map(order, OrderResponse.class);
                     orderResponse.setShippingMethodId(order.getShippingMethod().getId());
@@ -120,7 +122,7 @@ public class OrderService implements IOrderService {
                     orderResponse.setShippingMethodName(order.getShippingMethod().getName());
                     orderResponse.setPaymentMethodName(order.getPaymentMethod().getName());
                     return orderResponse;
-                }).toList();
+                });
     }
 
     @Override
@@ -158,9 +160,9 @@ public class OrderService implements IOrderService {
     }
 
     @Override
-    public List<OrderResponse> findByUserId (Long userId) {
-            List<Order> orders = orderRepository.findByUserId(userId);
-            return orders.stream()
+    public Page<OrderResponse> findByUserId (Long userId, Pageable pageable) {
+            Page<Order> orders = orderRepository.findByUserId(userId, pageable);
+            return orders
                     .map(order -> {
                         OrderResponse orderResponse = modelMapper.map(order, OrderResponse.class);
                         orderResponse.setPaymentMethodId(order.getPaymentMethod().getId());
@@ -169,7 +171,7 @@ public class OrderService implements IOrderService {
                         orderResponse.setShippingMethodName(order.getShippingMethod().getName());
                         orderResponse.setPaymentMethodName(order.getPaymentMethod().getName());
                         return orderResponse;
-                    }).toList();
+                    });
     }
 
     @Override
@@ -180,4 +182,11 @@ public class OrderService implements IOrderService {
         existingOrder.setActive(false);
         orderRepository.save(existingOrder);
     }
+
+    @Override
+    @Transactional
+    public void hardDeleteOrder (Long id) {
+        orderRepository.deleteById(id);
+    }
+
 }

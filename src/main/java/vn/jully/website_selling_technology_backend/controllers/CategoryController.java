@@ -32,10 +32,11 @@ public class CategoryController {
     private final ICategoryService categoryService;
     private final LocalizationUtils localizationUtils;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+
     @PostMapping("")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Response> insertCategory (
-            @Valid  @RequestBody CategoryDTO categoryDTO,
+    public ResponseEntity<Response> insertCategory(
+            @Valid @RequestBody CategoryDTO categoryDTO,
             BindingResult result
     ) {
         if (result.hasErrors()) {
@@ -63,7 +64,7 @@ public class CategoryController {
     }
 
     @GetMapping("")
-    public ResponseEntity<Response> getAllCategories (
+    public ResponseEntity<Response> getAllCategories(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit
     ) {
@@ -91,7 +92,7 @@ public class CategoryController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Response> updateCategory (
+    public ResponseEntity<Response> updateCategory(
             @PathVariable Long id,
             @RequestBody CategoryDTO categoryDTO
     ) {
@@ -107,7 +108,7 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Response> deleteCategory (@PathVariable long id) {
+    public ResponseEntity<Response> deleteCategory(@PathVariable long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.ok(
                 Response.builder()

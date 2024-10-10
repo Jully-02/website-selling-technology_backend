@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail (String email);
 
-    @Query("SELECT o FROM User o JOIN o.roleList r WHERE o.isActive = true AND " +
+    @Query("SELECT o FROM User o JOIN o.roleList r WHERE " +
             "(:keyword IS NULL OR :keyword = '' OR " +
             "o.fullName LIKE %:keyword% OR " +
             "o.address LIKE %:keyword% OR " +
